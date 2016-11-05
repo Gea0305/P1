@@ -26,9 +26,9 @@ int main(){
 	cout << "Size of file: " << size<<endl;
 	inFile.seekg(0); // set the pointer to the beginning
 
-	oData = new char[ size+1 ]; //  for the '\0'
+	oData = new char[ size ]; 
 	inFile.read( oData, 5 );
-	//oData[1] = '\0' ; // set '\0' 
+	
 	
 	cout<<oData[0];
 	cout<<oData[1];

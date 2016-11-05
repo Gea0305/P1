@@ -24,6 +24,7 @@ int main(){
 	//inFile.seekg(0, ios::end); // set the pointer to the end
 	size = inFile.tellg() ; // get the length of the file
 	cout << "Size of file: " << size<<endl;
+	//Ponemos el puntero en la primera posicion
 	inFile.seekg(0); // set the pointer to the beginning
 
 	oData = new char[ size ]; 

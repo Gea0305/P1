@@ -39,10 +39,10 @@ void leer_dimensiones(/*const char* fileName*/){
 	
 	pInFile.read(widthData, 4); //Lees la anchura
 	
-	   cout<< char widthData[0]; 
-	   cout << char widthData[1]; 
-	    cout << char widthData[2]; 
-	    cout <<char widthData[3]; 
+	   cout<<  widthData[0]; 
+	   cout <<  widthData[1]; 
+	    cout <<  widthData[2]; 
+	    cout << widthData[3]; 
 	/*Calculas la anchura y lo metes en width*/
 	
 }else{

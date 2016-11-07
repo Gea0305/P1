@@ -100,8 +100,11 @@ void MaxMin(){
 		}
 		ofstream pOutFile ;
     		pOutFile.open(fileName, ios::out | ios::trunc | ios::binary);
-   		pOutFile.write(colores, 6); //write header data onto outpu
-
+		for (int i=0; i<6; i++){
+			pOutFile.write("< ", 1);
+   			pOutFile.write(colores[i], 1); //write header data onto outpu
+			pOutFile.write(" >", 1);
+		}
    		 pOutFile.close(); //close stream
 	 }
 return 0;

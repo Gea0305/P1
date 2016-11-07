@@ -98,16 +98,21 @@ void MaxMin(){
 		colores[1]=blue;
 		}
 		}
-		  ofstream pOutFile ;
+		ofstream pOutFile ;
     		pOutFile.open(fileName, ios::out | ios::trunc | ios::binary);
-    pOutFile.write(colores, 6); //write header data onto outpu
+   		pOutFile.write(colores, 6); //write header data onto outpu
 
-    pOutFile.close(); //close stream
- }
+   		 pOutFile.close(); //close stream
+	 }
 return 0;
 }
-	
-	
+
+void Conversor(int n){
+	int decimal << dec << n;
+
+	return 0;
+}
+
 	
 	
 	

@@ -62,6 +62,21 @@ void aplicar_mascara(){
 }
 
 	
+void MaxMin(){
+	
+	ifstream pInFile;
+	pInFile.open("imagen.img", ios::in | ios::binary);
+ 	if (pInFile.is_open()) {
+		int colores[6];
+		int red[HEIGHT*WIDTH];
+		int blue[HEIGHT*WIDTH];
+		int green[HEIGHT*WIDTH];
+		pInFile.read(red, HEIGHT*WIDTH);
+		pInFile.read(blue, HEIGHT*WIDTH);
+		pInFile.read(green, HEIGHT*WIDTH);
+ }
+return 0;
+}
 	
 	
 	

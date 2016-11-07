@@ -98,7 +98,17 @@ void MaxMin(){
 		colores[1]=blue;
 		}
 		}
-		
+		  ofstream pOutFile ;
+    		pOutFile.open(fileName, ios::out | ios::trunc | ios::binary);
+    pOutFile.write(reinterpret_cast<char*>(imageHeaderData), 1078); //write header data onto output
+
+    for(int i = 0; i < HEIGHT; i++){
+
+        pOutFile.write(reinterpret_cast<char*>(filteredData[i]),WIDTH); // write new image data.
+
+    }
+
+    pOutFile.close(); //close stream
  }
 return 0;
 }

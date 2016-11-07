@@ -100,13 +100,7 @@ void MaxMin(){
 		}
 		  ofstream pOutFile ;
     		pOutFile.open(fileName, ios::out | ios::trunc | ios::binary);
-    pOutFile.write(reinterpret_cast<char*>(imageHeaderData), 1078); //write header data onto output
-
-    for(int i = 0; i < HEIGHT; i++){
-
-        pOutFile.write(reinterpret_cast<char*>(filteredData[i]),WIDTH); // write new image data.
-
-    }
+    pOutFile.write(colores, 6); //write header data onto outpu
 
     pOutFile.close(); //close stream
  }

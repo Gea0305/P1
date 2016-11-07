@@ -110,7 +110,7 @@ return 0;
 void Conversor(int n){
 	int decimal << dec << n;
 
-	return 0;
+	return decimal;
 }
 
 	

@@ -7,6 +7,7 @@
 #include <cstring>
 using namespace std;
 
+polla
  	
 	int HEIGHT;
 	int WIDTH;

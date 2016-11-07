@@ -36,7 +36,7 @@ void leer_dimensiones(/*const char* fileName*/){
 	    cout << heightData[2];
 	    cout << heightData[3];
 	/*Calculamos la altura y lo metemos en height*/
-	
+	pInFile.seekg(5);
 	pInFile.read(widthData, 4); //Lees la anchura
 	
 	   cout<<  widthData[0]; 

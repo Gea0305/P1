@@ -6,16 +6,16 @@
 #include <algorithm>
 #include <cstring>
 using namespace std;
+void leer_dimensiones();
 
-polla
  	
 	int HEIGHT;
 	int WIDTH;
 	
-int main(int argc, char *argv[]){
+int main(/*int argc, char *argv[]*/){
  //argc= numero de argumentos especificados por linea de comandos
 //argv[i] contiene el contenido del argumento i
-  
+  leer_dimensiones();
   
   /*
 
@@ -49,21 +49,28 @@ int main(int argc, char *argv[]){
 */
 return 0;
 }
-void leer_dimensiones(const char* fileName){
+void leer_dimensiones(/*const char* fileName*/){
 	
 	ifstream pInFile;
-	pInFile.open(fileName, ios::in | ios::binary); // open fileName and read as binary.
+	pInFile.open("imagen.img", ios::in | ios::binary); // open fileName and read as binary.
     
     if (pInFile.is_open()) {
-    pInFile.seekg(0, ios::beg); //pos filter at beginning of image file.
+        pInFile.seekg(0, ios::beg); //pos filter at beginning of image file.
 	char heightData[4]; 
 	char widthData[4]; 
 	pInFile.read(heightData, 4); //Lees la altura
-	
+	    cout << heightData[0];
+	    cout << heightData[1];
+	    cout << heightData[2];
+	    cout << heightData[3];
 	/*Calculamos la altura y lo metemos en height*/
 	
 	pInFile.read(widthData, 4); //Lees la anchura
 	
+	   cout<< char widthData[0]; 
+	   cout << char widthData[1]; 
+	    cout << char widthData[2]; 
+	    cout <<char widthData[3]; 
 	/*Calculas la anchura y lo metes en width*/
 	
 }else{

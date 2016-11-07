@@ -68,12 +68,37 @@ void MaxMin(){
 	pInFile.open("imagen.img", ios::in | ios::binary);
  	if (pInFile.is_open()) {
 		int colores[6];
-		int red[HEIGHT*WIDTH];
-		int blue[HEIGHT*WIDTH];
-		int green[HEIGHT*WIDTH];
-		pInFile.read(red, HEIGHT*WIDTH);
-		pInFile.read(blue, HEIGHT*WIDTH);
-		pInFile.read(green, HEIGHT*WIDTH);
+		int red;
+		int blue;
+		int green;
+		for (int i =0; i<(HEIGHT*WIDTH)/2; i++){
+		pInFile.read(red,2);
+		if (colores[0] > red){
+		colores[0]=red;
+		}
+		if (colores[1] < red){
+		colores[1]=red;
+		}
+		}
+		for (int i =0; i<(HEIGHT*WIDTH)/2; i++){
+		pInFile.read(green,2);
+		if (colores[0] > green){
+		colores[0]=green;
+		}
+		if (colores[1] < green){
+		colores[1]=green;
+		}
+		}
+		for (int i =0; i<(HEIGHT*WIDTH)/2; i++){
+		pInFile.read(blue,2);
+		if (colores[0] > blue){
+		colores[0]=blue;
+		}
+		if (colores[1] < blue){
+		colores[1]=blue;
+		}
+		}
+		
  }
 return 0;
 }

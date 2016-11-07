@@ -108,12 +108,10 @@ return 0;
 }
 
 void Conversor(int n){
-	
-    int decimal;   
-    stringstream ss;
-    ss << hex << "20";
-    ss >> decimal;
-	 cout << decimal<<endl;
+	int decimal;   
+	stringstream ss;    
+	ss << hex << n;
+	ss >> decimal;
 	return decimal;
 }
 

@@ -43,7 +43,7 @@ int main(int argc, char *argv[]){
 				cerr << "argumentos invalidos";
   				return 0;
 			} else{
-				mascara(argv[4],argv[6],argv[8]);
+				aplicar_mascara(argv[4],argv[6],argv[8]);
 		      	}
 			break;
 		
@@ -111,17 +111,23 @@ void aplicar_mascara(){
 }
 
 	
-void MaxMin(){
+void MaxMin(const char* img, const char* exit){
 	
 	ifstream pInFile;
-	pInFile.open("imagen.img", ios::in | ios::binary);
+	pInFile.open(img, ios::in | ios::binary);
  	if (pInFile.is_open()) {
+		leer_dimenciones(img);
+		unsigned char imgdata; 
 		int colores[6];
+		colores[0]=255;
+		colores[2]=255;
+		colores[4]=255;
 		int red;
 		int blue;
 		int green;
-		for (int i =0; i<(HEIGHT*WIDTH)/2; i++){
-		pInFile.read(red,2);
+		for (int i =0; i<HEIGHT*WIDTH; i++){
+		pInFile.read(imgdata,1);
+		red=imgdata;
 		if (colores[0] > red){
 		colores[0]=red;
 		}
@@ -129,8 +135,9 @@ void MaxMin(){
 		colores[1]=red;
 		}
 		}
-		for (int i =0; i<(HEIGHT*WIDTH)/2; i++){
-		pInFile.read(green,2);
+		for (int i =0; i<HEIGHT*WIDTH; i++){
+		pInFile.read(imgdata,1);
+		green=imgdata;
 		if (colores[0] > green){
 		colores[0]=green;
 		}
@@ -138,8 +145,9 @@ void MaxMin(){
 		colores[1]=green;
 		}
 		}
-		for (int i =0; i<(HEIGHT*WIDTH)/2; i++){
-		pInFile.read(blue,2);
+		for (int i =0; i<HEIGHT*WIDTH; i++){
+		pInFile.read(imgdata,1);
+		blue=imgdata;
 		if (colores[0] > blue){
 		colores[0]=blue;
 		}
@@ -148,7 +156,7 @@ void MaxMin(){
 		}
 		}
 		ofstream pOutFile ;
-    		pOutFile.open(fileName, ios::out | ios::trunc | ios::binary);
+    		pOutFile.open(exit, ios::out | ios::trunc | ios::binary);
 		for (int i=0; i<6; i++){
 			pOutFile.write("< ", 1);
    			pOutFile.write(colores[i], 1); //write header data onto outpu

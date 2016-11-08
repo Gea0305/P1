@@ -12,12 +12,32 @@ void leer_dimensiones();
 	int HEIGHT;
 	int WIDTH;
 	
-int main(/*int argc, char *argv[]*/){
+int main(int argc, char *argv[]){
  //argc= numero de argumentos especificados por linea de comandos
 //argv[i] contiene el contenido del argumento i
-  leer_dimensiones();
-  
-  
+ // leer_dimensiones();
+  if (argc > 4 && argv[1]== "-u1"){
+	  cerr << "argumentos invalidos";
+  return 0;
+  }else if(argc > 5){
+ 	 cerr << "argumentos invalidos";
+  return 0;
+  }
+	for(int i=1; i<argv.length; i++){
+	if (argv[i][0] != "-"){
+	 cerr << "argumentos invalidos";
+  	return 0;
+	}
+	}
+	swich (argv[1][2]){
+		case 0:
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		default:  cerr << "argumentos invalidos";
+  return 0;
+	}
 return 0;
 }
 

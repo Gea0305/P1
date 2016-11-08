@@ -118,10 +118,7 @@ void MaxMin(const char* img, const char* exit){
  	if (pInFile.is_open()) {
 		leer_dimenciones(img);
 		unsigned char imgdata; 
-		int colores[6];
-		colores[0]=255;
-		colores[2]=255;
-		colores[4]=255;
+		int colores[6]= { 255 , 0 , 255 , 0 , 255 , 0} ;
 		int red;
 		int blue;
 		int green;

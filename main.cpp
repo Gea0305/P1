@@ -16,49 +16,55 @@ int main(int argc, char *argv[]){
  //argc= numero de argumentos especificados por linea de comandos
 //argv[i] contiene el contenido del argumento i
  // leer_dimensiones();
-  if(argc > 9){
- 	 cerr << "argumentos invalidos";
-  return 0;
-  }else
-	if (argc > 7 && argv[1]== "-u1"){
-	  cerr << "argumentos invalidos";
-  return 0;
-	}
+	if(argc > 9){
+ 		cerr << "argumentos invalidos";
+  		return 0;
+  	}else if (argc > 7 && argv[1]== "-u1"){
+			cerr << "argumentos invalidos";
+  			return 0;
+		}
 	if(argv[1]!= "-u" || argv[3]!= "-i" || argv[5] != "-o"){
-	cerr << "argumentos invalidos";
-  return 0;
+		cerr << "argumentos invalidos";
+ 		return 0;
 	}
 	swich (argv[2]){
 		case 0: if(argv[7]!= "-t"){
-		cerr << "argumentos invalidos";
-  	return 0;
-		} else{
-			histograma(argv[4],argv[6],argv[8]);
-		      }break;
-		case 1:MaxMin(argv[4],argv[6]);
+				cerr << "argumentos invalidos";
+  				return 0;
+			} else {
+				histograma(argv[4],argv[6],argv[8]);
+		      	}
 			break;
+		
+		case 1: MaxMin(argv[4],argv[6]);
+			break;
+		
 		case 2: if(argv[7]!= "-f"){
-		cerr << "argumentos invalidos";
-  	return 0;
-		} else{
-			mascara(argv[4],argv[6],argv[8]);
-		      }break;
+				cerr << "argumentos invalidos";
+  				return 0;
+			} else{
+				mascara(argv[4],argv[6],argv[8]);
+		      	}
+			break;
+		
 		case 3: if(argv[7]!= "-a"){
-		cerr << "argumentos invalidos";
-  	return 0;
-		} else{
-			rotacion(argv[4],argv[6],argv[8]);
-		      }break;
+				cerr << "argumentos invalidos";
+  				return 0;
+			} else{
+				rotacion(argv[4],argv[6],argv[8]);
+		     	}
+			break;
+		
 		case 4: if(argv[7]!= "-r"){
-		cerr << "argumentos invalidos";
-  	return 0;
-		} else{
-			filtro(argv[4],argv[6],argv[8]);
-		      }break;
+				cerr << "argumentos invalidos";
+  				return 0;
+			} else{
+				filtro(argv[4],argv[6],argv[8]);
+		    	}
+			break;
 		default:  cerr << "argumentos invalidos";
-  return 0;
 	}
-return 0;
+	return 0;
 }
 
 void leer_dimensiones(/*const char* fileName*/, ){

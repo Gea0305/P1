@@ -72,24 +72,27 @@ void leer_dimensiones(/*const char* fileName*/, ){
 	ifstream pInFile;
 	pInFile.open("imagen.img", ios::in | ios::binary); // open fileName and read as binary.
     
-    if (pInFile.is_open()) {
-        pInFile.seekg(0, ios::beg); //pos filter at beginning of image file.
-	char heightData[4]; 
-	char widthData[4]; 
-	pInFile.read(heightData, 4); //Lees la altura
-	    cout << heightData[0];
-	    cout << heightData[1];
-	    cout << heightData[2];
-	    cout << heightData[3];
-	/*Calculamos la altura y lo metemos en height*/
-	pInFile.seekg(5);
-	pInFile.read(widthData, 4); //Lees la anchura
+   	 if (pInFile.is_open()) {
+        
+   	       //Donde almacenamos los datos tienen que ser unsigned char, ya que van desde 0 a 255    
+		unsigned char heightData[4]; 
+		unsigned char widthData[4]; 
+
+	 
+	 pInFile.seekg(0, ios::beg); //pos filter at beginning of image file.
+	 
+	 //Leo los 4 primeros bytes
+	pInFile.read( (char *)& heightData, 4 ); //Lees la altura
 	
-	   cout<<  widthData[0]; 
-	   cout <<  widthData[1]; 
-	    cout <<  widthData[2]; 
-	    cout << widthData[3]; 
-	/*Calculas la anchura y lo metes en width*/
+	//Lee 2000 0000, como esta en LEndian seria 0000 0020, que equivale a 32.En las posiciones el 0 seria el 3, el 1 el 2 y el 3 el 0
+	//Lo cambio a BIGENDIAN
+   	HEIGHT += (int)heightData[0] | ((int)heightData[1]<<8) | ((int)heightData[2]<<16) | ((int)heightData[3]<<24);
+	cout<<"HEIGHT:  "<<HEIGHT<<endl;
+	
+	pInFile.read( (char *)& widthData, 4); 
+	WIDTH += (int)widthData[0] | ((int)widthData[1]<<8) | ((int)widthData[2]<<16) | ((int)widthData[3]<<24);
+	cout <<"WIDTH: "<<WIDTH<<endl;
+
 	
 }else{
 	cerr <<"Error opening file";

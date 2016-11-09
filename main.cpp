@@ -102,11 +102,83 @@ void leer_dimensiones(/*const char* fileName*/, ){
 
 void aplicar_mascara(){
 		
-		/* 	1)Leer 1byte, que son dos posiciones del fichero
-		   	2)Leet 1 byte, del fichero de la mascara, que serian dos digitos, y pasarlo a decimal. 01=1, 00=0
-			3)Multiplicar el primero numero, por el 0 o el 1 de la mascara segun corresponda
-			4)Escribir el resultado en un fichero de salida llamado mask_out.img
-	*/
+	
+			ifstream pInImagen;
+			pInImagen.open("imagen.img", ios::in | ios::binary); // open fileName and read as binary.
+    		ifstream pInMascara;
+    		pInMascara.open("mask.img", ios::in | ios::binary); 
+    		
+   		 if (pInImagen.is_open()) {
+         if (pInMascara.is_open()){
+         	
+         	//Creamos el ofstream, para escribir en el fichero de salida
+         	ofstream pOutFile;
+			pOutFile.open("mask_out.img", ios::out | ios::trunc | ios::binary);	
+         	
+     //Escribimos en el mask_out, los primeros 8 bytes de su tamaño, que sera el tamaño de la imagen de entrada
+	   	unsigned char heightData[4]; 
+		unsigned char widthData[4]; 
+	   pInImagen.seekg(0, ios::beg); //pos filter at beginning of image file.
+	 
+		 //Leo los 4 primeros bytes
+			pInImagen.read( (char *)& heightData, 4 ); //Lees la altura
+		 	pInImagen.read( (char *)& widthData, 4); 
+		 	
+		 	//Escribo en el fichero de salida, los tamaños de la matriz
+		 		pOutFile.write( (char *)& heightData, 4);
+		 		pOutFile.write( (char *)& widthData, 4);
+		 	
+    //Donde almacenamos los datos tienen que ser unsigned char, ya que van desde 0 a 255    
+	unsigned char ImageData; 
+	unsigned char MaskData; 
+	int dato_imagen;
+	int dato_mascara;
+	int contador=0;
+	
+	
+	 //Ponemos el puntero para que empiece a leer en el byte 9, ya que los 8 primeros son del tamaño de la matriz
+	 pInMascara.seekg(8); 
+	
+	//Ponemos contador<matrix_size, ya que con !ImageData.eof, debe ser que lee tambien el /0 del final, y escribe una posicion mas de la debida
+	while(contador<matrix_size){
+	//	while(!pInMascara.eof()){
+	//	}
+	
+	pInImagen.read( (char *)& ImageData, 1 ); 
+	pInMascara.read( (char *)& MaskData, 1 );	
+	
+	
+	dato_mascara = MaskData;
+	
+
+
+	
+	if(dato_mascara == 0){
+		//Escribo 0
+		pOutFile.write( (char *)& MaskData, 1);
+	
+		
+	}else{
+		 //Escribo ImageData
+		pOutFile.write( (char *)& ImageData, 1);
+	
+	}
+		
+	contador++;
+	
+	
+	}
+	
+
+		
+		
+		
+			
+	}else{
+		cerr<<"Error opening mask.img"<<endl;
+	}}else{
+		cerr<<"Error opening image.img"<<endl;
+	}
 	
 }
 

@@ -6,12 +6,14 @@
 #include <algorithm>
 #include <cstring>
 using namespace std;
+//Prototipado de las funciones
 void leer_dimensiones();
-
+void aplicar_mascara();
  	
 	int HEIGHT;
 	int WIDTH;
-	
+	int matrix_size; //Tamaño de la matriz sin contar con los bytes que indican el tamaño
+
 int main(int argc, char *argv[]){
  //argc= numero de argumentos especificados por linea de comandos
 //argv[i] contiene el contenido del argumento i
@@ -72,11 +74,11 @@ void leer_dimensiones(/*const char* fileName*/, ){
 	ifstream pInFile;
 	pInFile.open("imagen.img", ios::in | ios::binary); // open fileName and read as binary.
     
-   	 if (pInFile.is_open()) {
+    if (pInFile.is_open()) {
         
-   	       //Donde almacenamos los datos tienen que ser unsigned char, ya que van desde 0 a 255    
-		unsigned char heightData[4]; 
-		unsigned char widthData[4]; 
+    //Donde almacenamos los datos tienen que ser unsigned char, ya que van desde 0 a 255    
+	unsigned char heightData[4]; 
+	unsigned char widthData[4]; 
 
 	 
 	 pInFile.seekg(0, ios::beg); //pos filter at beginning of image file.
@@ -84,40 +86,42 @@ void leer_dimensiones(/*const char* fileName*/, ){
 	 //Leo los 4 primeros bytes
 	pInFile.read( (char *)& heightData, 4 ); //Lees la altura
 	
-	//Lee 2000 0000, como esta en LEndian seria 0000 0020, que equivale a 32.En las posiciones el 0 seria el 3, el 1 el 2 y el 3 el 0
-	//Lo cambio a BIGENDIAN
-   	HEIGHT += (int)heightData[0] | ((int)heightData[1]<<8) | ((int)heightData[2]<<16) | ((int)heightData[3]<<24);
-	cout<<"HEIGHT:  "<<HEIGHT<<endl;
+		//Lee 2000 0000, como esta en LEndian seria 0000 0020, que equivale a 32.En las posiciones el 0 seria el 3, el 1 el 2 y el 3 el 0
+		//Lo cambio a BIGENDIAN
+   	    HEIGHT += (int)heightData[0] | ((int)heightData[1]<<8) | ((int)heightData[2]<<16) | ((int)heightData[3]<<24);
+	 	cout<<"HEIGHT:  "<<HEIGHT<<endl;
 	
-	pInFile.read( (char *)& widthData, 4); 
-	WIDTH += (int)widthData[0] | ((int)widthData[1]<<8) | ((int)widthData[2]<<16) | ((int)widthData[3]<<24);
-	cout <<"WIDTH: "<<WIDTH<<endl;
+		pInFile.read( (char *)& widthData, 4); 
+		WIDTH += (int)widthData[0] | ((int)widthData[1]<<8) | ((int)widthData[2]<<16) | ((int)widthData[3]<<24);
+	  	cout <<"WIDTH: "<<WIDTH<<endl;
 
+		matrix_size=  (HEIGHT*WIDTH)*3;
+		cout<<"Matrix size: "<< matrix_size<<endl;
 	
 }else{
 	cerr <<"Error opening file";
-}
+} 
 	
 }
 
 void aplicar_mascara(){
 		
 	
-			ifstream pInImagen;
-			pInImagen.open("imagen.img", ios::in | ios::binary); // open fileName and read as binary.
+		ifstream pInImagen;
+		pInImagen.open("imagen.img", ios::in | ios::binary); 
     		ifstream pInMascara;
     		pInMascara.open("mask.img", ios::in | ios::binary); 
     		
-   		 if (pInImagen.is_open()) {
+   	if (pInImagen.is_open()) {
          if (pInMascara.is_open()){
          	
          	//Creamos el ofstream, para escribir en el fichero de salida
          	ofstream pOutFile;
-			pOutFile.open("mask_out.img", ios::out | ios::trunc | ios::binary);	
+		pOutFile.open("mask_out.img", ios::out | ios::trunc | ios::binary);	
          	
      //Escribimos en el mask_out, los primeros 8 bytes de su tamaño, que sera el tamaño de la imagen de entrada
-	   	unsigned char heightData[4]; 
-		unsigned char widthData[4]; 
+	   unsigned char heightData[4]; 
+	   unsigned char widthData[4]; 
 	   pInImagen.seekg(0, ios::beg); //pos filter at beginning of image file.
 	 
 		 //Leo los 4 primeros bytes
@@ -136,7 +140,7 @@ void aplicar_mascara(){
 	int contador=0;
 	
 	
-	 //Ponemos el puntero para que empiece a leer en el byte 9, ya que los 8 primeros son del tamaño de la matriz
+	 //Ponemos el puntero para que empiece a leer en el byte 9(pos 8), ya que los 8 primeros son del tamaño de la matriz
 	 pInMascara.seekg(8); 
 	
 	//Ponemos contador<matrix_size, ya que con !ImageData.eof, debe ser que lee tambien el /0 del final, y escribe una posicion mas de la debida

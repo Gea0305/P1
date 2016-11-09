@@ -240,13 +240,7 @@ void MaxMin(const char* img, const char* exit){
 return 0;
 }
 
-void Conversor(int n){
-	int decimal;   
-	stringstream ss;    
-	ss << hex << n;
-	ss >> decimal;
-	return decimal;
-}
+
 
 	
 	

@@ -155,22 +155,11 @@ void aplicar_mascara(){
 	pInMascara.read( (char *)& MaskData, 1 );	
 	
 	
-	dato_mascara = MaskData;
+	ImageData= ImageData*MaskData;
 	
+	pOutFile.write( (char *) &ImageData, 1);
 
 
-	
-	if(dato_mascara == 0){
-		//Escribo 0
-		pOutFile.write( (char *)& MaskData, 1);
-	
-		
-	}else{
-		 //Escribo ImageData
-		pOutFile.write( (char *)& ImageData, 1);
-	
-	}
-		
 	contador++;
 	
 	

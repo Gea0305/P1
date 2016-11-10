@@ -182,7 +182,7 @@ void aplicar_mascara(){
 	
 void MaxMin(const char* img, const char* exit){
 	
-		ifstream pInFile;
+			ifstream pInFile;
 	pInFile.open("imagen.img", ios::in | ios::binary);
  	if (pInFile.is_open()) {
 		//leer_dimenciones(img);
@@ -232,7 +232,7 @@ void MaxMin(const char* img, const char* exit){
 		}
 		}
 		ofstream pOutFile ;
-    	pOutFile.open("maxmin.txt", ios::out | ios::trunc | ios::binary);
+    	pOutFile.open("maxmin.txt",  ios::trunc);
     	
     	if(!pOutFile) { 
     		cerr << "Cannot open file "<<endl; 
@@ -247,13 +247,28 @@ void MaxMin(const char* img, const char* exit){
     	cout<< colores[5]<<endl;
     	
     	
-    	
-    	
+   
+    	string s;
+		stringstream out;
+		
+	for (int i=0; i < 6; i++)
+	{	
+		 out << colores[i];
+		 if(i<5){
+		 	 out << ",";
+		 }
+		
+		 s = out.str(); 
+
+    
+		
+	}
+	cout<<s<<endl;
 		for (int i=0; i<6; i++){
 			//pOutFile.write("<", 1);
 		
 			
-   			pOutFile.write( (char *)&colores[i], sizeof colores[i]); //write header data onto outpu
+   			pOutFile.write( (char *)&s, sizeof s); //write header data onto outpu
 			//pOutFile.write(">", 1);
 		} 
    		 pOutFile.close(); //close stream

@@ -183,28 +183,31 @@ void aplicar_mascara(){
 void rotacion(const char* img, const char* exit, int gr){
 	ifstream pInFile;
 	pInFile.open("imagen.img", ios::in | ios::binary);
-	if (pInFile.is_open()) {
-	unsigned char imgdata; 
-	pInFile.seekg(8); 
-	int xc , yc , xf, yf, xi,yi;
-	leer_dimensiones();
-	int fin[HEIGHT][WIDTH];
-	xc=WIDTH/2;//valor a truncar
-	yc=HEIGHT/2;
-	for (int i=0; i<HEIGHT; i++){
-	for (int j=0; j<WIDTH; j++){
-		xi=j-xc;
-		yi=i-yc;
-		xf=(cos gr*xi-sen gr * yi);
-		yf=(cos gr*xi-sen gr * yi);
-		pInFile.read( (char *)& imgdata,1);
-		fin[yf][xf]= imgdata;
-	}
-	}
-	}
+		if (pInFile.is_open()) {
+			unsigned char imgdata; 
+			pInFile.seekg(8); 
+			int xc , yc , xf, yf, xi,yi;
+			leer_dimensiones();
+			int fin[HEIGHT][WIDTH];
+			xc=WIDTH/2;//valor a truncar
+			yc=HEIGHT/2;
+			for (int i=0; i<HEIGHT; i++){
+				for (int j=0; j<WIDTH; j++){
+					xi=j-xc;
+					yi=i-yc;
+					xf=(cos gr*xi-sen gr * yi);
+					yf=(cos gr*xi-sen gr * yi);
+					pInFile.read( (char *)& imgdata,1);
+					if(yf<=HEIGHT && yf>=0 && xf<=HEIGHT && xf>=0){
+						fin[yf][xf]= imgdata;
+						if (fin[i][j] == null){
+							fin[i][j]= 0;
+						}
+					}
+				}
+			}
+		}
 	return 0;
- 
-
 }	
 
 void MaxMin(const char* img, const char* exit){

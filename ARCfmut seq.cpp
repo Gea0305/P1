@@ -5,6 +5,8 @@
 #include <vector>
 #include <algorithm>
 #include <cstring>
+
+#define PI 3.14159265
 using namespace std;
 //Prototipado de las funciones
 void leer_dimensiones();
@@ -195,8 +197,8 @@ void rotacion(const char* img, const char* exit, int gr){
 				for (int j=0; j<WIDTH; j++){
 					xi=j-xc;
 					yi=i-yc;
-					xf=(cos gr*xi-sen gr * yi);
-					yf=(sen gr*xi-cos gr * yi);
+					xf=(cos(gr/180*PI)*xi-sin(gr/180*PI) * yi);
+					yf=(sin(gr/180*PI)*xi-cos(gr/180*PI) * yi);
 					pInFile.read( (char *)& imgdata,1);
 					if(yf<=HEIGHT && yf>=0 && xf<=HEIGHT && xf>=0){
 						fin[yf][xf]= imgdata;

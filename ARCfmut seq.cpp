@@ -189,14 +189,14 @@ void rotacion(const char* img, const char* exit, int gr){
 			int xc , yc , xf, yf, xi,yi;
 			leer_dimensiones();
 			int fin[HEIGHT][WIDTH];
-			xc=WIDTH/2;//valor a truncar
-			yc=HEIGHT/2;
+			xc=trunc(WIDTH/2);
+			yc=tunc(HEIGHT/2);
 			for (int i=0; i<HEIGHT; i++){
 				for (int j=0; j<WIDTH; j++){
 					xi=j-xc;
 					yi=i-yc;
 					xf=(cos gr*xi-sen gr * yi);
-					yf=(cos gr*xi-sen gr * yi);
+					yf=(sen gr*xi-cos gr * yi);
 					pInFile.read( (char *)& imgdata,1);
 					if(yf<=HEIGHT && yf>=0 && xf<=HEIGHT && xf>=0){
 						fin[yf][xf]= imgdata;

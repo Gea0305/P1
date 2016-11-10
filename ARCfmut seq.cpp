@@ -5,74 +5,108 @@
 #include <vector>
 #include <algorithm>
 #include <cstring>
+#include <math.h>
 
 #define PI 3.14159265
 using namespace std;
 //Prototipado de las funciones
 void leer_dimensiones();
 void aplicar_mascara();
-void MaxMin();		
+void MaxMin();
+void rotacion(const char* , const char* , int );	
+	
 	int HEIGHT;
 	int WIDTH;
-	int matrix_size; //Tamaño de la matriz sin contar con los bytes que indican el tamaño
+	int matrix_size; //TamaÃ±o de la matriz sin contar con los bytes que indican el tamaÃ±o
 
 int main(int argc, char *argv[]){
  //argc= numero de argumentos especificados por linea de comandos
 //argv[i] contiene el contenido del argumento i
- // leer_dimensiones();
+  leer_dimensiones();
+  
+  cout<<argv[1]<<endl;
+  //cout<<argv[2]<<endl;
+  cout<<argv[3]<<endl;
+  //cout<<argv[4]<<endl;
+  cout<<argv[5]<<endl;
+  //cout<<argv[6]<<endl;
+  cout<<argc<<endl;
 	if(argc > 9){
- 		cerr << "argumentos invalidos";
-  		return 0;
-  	}else if (argc > 7 && argv[1]== "-u1"){
-			cerr << "argumentos invalidos";
-  			return 0;
-		}
-	if(argv[1]!= "-u" || argv[3]!= "-i" || argv[5] != "-o"){
-		cerr << "argumentos invalidos";
- 		return 0;
+ 		cerr << "Numero de argumentos demasiado grande";
+  		return 1;
+  	} 
+  		if(argv[1]!= "-u" ){
+		cerr << "Arguementos no validos: falta el argumento -u";
+ 		return 1;
+	}	if(argv[3]!= "-i" ){
+		cerr << "Arguementos no validos: falta el argumento -u";
+ 		return 1;
 	}
+	if(argv[5]!= "-o" ){
+		cerr << "Arguementos no validos: falta el argumento -u";
+ 		return 1;
+	} 
+	  
+
 	
-	swich (argv[2]){
-		case 0: if(argv[7]!= "-t"){
-				cerr << "argumentos invalidos";
-  				return 0;
+	if( argv[2]=="0" ){
+		 if(argv[7]!= "-t"){
+			cerr << "Histrograma: Se necesitan los argumentos -t <numero entero>";
+  			return 0;
 			} else {
-				histograma(argv[4],argv[6],argv[8]);
+				cout<<"Llamamos a la funcion histograma con los argumentos"<<argv[4]<<" "<<argv[6]<<" "<<argv[8]<<endl;
+				//histograma(argv[4],argv[6],argv[8]);
 		      	}
-			break;
 		
-		case 1: MaxMin(argv[4],argv[6]);
-			break;
+	}	else
+	if( argv[2]=="1") { 
+		 if (argc > 7){
+			cerr<<"Maximos y minimos: Demasiados argumentos";
+			return 1;
+			}
+			cout<<"Llamamos a la funcion MAXMIN con los argumentos"<<argv[4]<<" "<<argv[6]<<endl;
+			//MaxMin(argv[4],argv[6]);
 		
-		case 2: if(argv[7]!= "-f"){
-				cerr << "argumentos invalidos";
+			}else
+	if(argv[2]=="2"){
+				 if(argv[7]!= "-f"){
+				cerr << "Aplicar mascara: Se necesitan los argumentos -f <ruta>";
+  				return 1;
+			} else{
+				cout<<"Llamamos a la funcion aplicar_mascara con los argumentos"<<argv[4]<<" "<<argv[6]<<" "<<argv[8]<<endl;
+				//aplicar_mascara(argv[4],argv[6],argv[8]);
+		      	}
+			
+			}else
+				if(argv[2]=="3"){
+				 if(argv[7]!= "-a"){
+				cerr << "Rotacion: Se necesita los argumentos -a <numero decimal>";
   				return 0;
 			} else{
-				aplicar_mascara(argv[4],argv[6],argv[8]);
-		      	}
-			break;
-		
-		case 3: if(argv[7]!= "-a"){
-				cerr << "argumentos invalidos";
-  				return 0;
-			} else{
-				rotacion(argv[4],argv[6],argv[8]);
+				cout<<"Llamamos a la funcion rotacion con los argumentos"<<argv[4]<<" "<<argv[6]<<" "<<argv[8]<<endl;
+			//	rotacion(argv[4],argv[6],argv[8]);
 		     	}
-			break;
-		
-		case 4: if(argv[7]!= "-r"){
-				cerr << "argumentos invalidos";
-  				return 0;
+				}else
+			if(argv[2]=="4"){
+				if(argv[7]!= "-r"){
+				cerr << "Filtro blanco y negro: Se necesitan los argumentos -r <numero decimal positivo>";
+  				return 1;
 			} else{
-				filtro(argv[4],argv[6],argv[8]);
+				
+				if(argv[8]<0){
+					cerr<<"El radio del circulo a filtrar debe ser positivo";
+					return 1;
+				}
+				cout<<"Llamamos a la funcion filtro con los argumentos"<<argv[4]<<" "<<argv[6]<<" "<<argv[8]<<endl;
+				//filtro(argv[4],argv[6],argv[8]);
 		    	}
-			break;
-		default:  cerr << "argumentos invalidos";
-	}
+		}else cerr << "Argumentos introducidos no validos";
+		
+	
 	return 0;
 }
 
-void leer_dimensiones(/*const char* fileName*/, ){
+void leer_dimensiones(/*const char* fileName*/){
 	
 	ifstream pInFile;
 	pInFile.open("imagen.img", ios::in | ios::binary); // open fileName and read as binary.
@@ -125,7 +159,7 @@ void aplicar_mascara(){
          	if(!pOutFile) { 
     		cout << "Cannot open file"<<endl;  
    			} 
-     //Escribimos en el mask_out, los primeros 8 bytes de su tamaño, que sera el tamaño de la imagen de entrada
+     //Escribimos en el mask_out, los primeros 8 bytes de su tamaÃ±o, que sera el tamaÃ±o de la imagen de entrada
 	   	unsigned char heightData[4]; 
 		unsigned char widthData[4]; 
 	   pInImagen.seekg(0, ios::beg); //pos filter at beginning of image file.
@@ -134,7 +168,7 @@ void aplicar_mascara(){
 			pInImagen.read( (char *)& heightData, 4 ); //Lees la altura
 		 	pInImagen.read( (char *)& widthData, 4); 
 		 	
-		 	//Escribo en el fichero de salida, los tamaños de la matriz
+		 	//Escribo en el fichero de salida, los tamaÃ±os de la matriz
 		 		pOutFile.write( (char *)& heightData, 4);
 		 		pOutFile.write( (char *)& widthData, 4);
 		 	
@@ -146,7 +180,7 @@ void aplicar_mascara(){
 	int contador=0;
 	
 	
-	 //Ponemos el puntero para que empiece a leer en el byte 9, ya que los 8 primeros son del tamaño de la matriz
+	 //Ponemos el puntero para que empiece a leer en el byte 9, ya que los 8 primeros son del tamaÃ±o de la matriz
 	 pInMascara.seekg(8); 
 	
 	//Ponemos contador<matrix_size, ya que con !ImageData.eof, debe ser que lee tambien el /0 del final, y escribe una posicion mas de la debida
@@ -189,10 +223,12 @@ void rotacion(const char* img, const char* exit, int gr){
 			unsigned char imgdata; 
 			pInFile.seekg(8); 
 			int xc , yc , xf, yf, xi,yi;
-			leer_dimensiones();
+	
 			int fin[HEIGHT][WIDTH];
-			xc=trunc(WIDTH/2);
-			yc=tunc(HEIGHT/2);
+			 //Con el ceil, redondeamos al de arriba
+			xc=ceil(WIDTH/2);
+			yc=ceil(HEIGHT/2);
+			
 			for (int i=0; i<HEIGHT; i++){
 				for (int j=0; j<WIDTH; j++){
 					xi=j-xc;
@@ -202,14 +238,14 @@ void rotacion(const char* img, const char* exit, int gr){
 					pInFile.read( (char *)& imgdata,1);
 					if(yf<=HEIGHT && yf>=0 && xf<=HEIGHT && xf>=0){
 						fin[yf][xf]= imgdata;
-						if (fin[i][j] == null){
+						if (fin[i][j] == NULL){
 							fin[i][j]= 0;
 						}
 					}
 				}
 			}
 		}
-	return 0;
+
 }	
 
 void MaxMin(const char* img, const char* exit){
@@ -224,7 +260,7 @@ void MaxMin(const char* img, const char* exit){
 		int blue;
 		int green;
 		
-		//No leemos los bytes que indican el tamaño de la matriz
+		//No leemos los bytes que indican el tamaÃ±o de la matriz
 		pInFile.seekg(8); 
 		
 		for (int i =0; i < (HEIGHT*WIDTH) ; i++){
@@ -299,7 +335,6 @@ void MaxMin(const char* img, const char* exit){
 	
 	
 	
-
 
 
 

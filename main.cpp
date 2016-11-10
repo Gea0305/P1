@@ -29,6 +29,7 @@ int main(int argc, char *argv[]){
 		cerr << "argumentos invalidos";
  		return 0;
 	}
+	
 	swich (argv[2]){
 		case 0: if(argv[7]!= "-t"){
 				cerr << "argumentos invalidos";
@@ -179,10 +180,36 @@ void aplicar_mascara(){
 	
 }
 
-	
+void rotacion(const char* img, const char* exit, int gr){
+	ifstream pInFile;
+	pInFile.open("imagen.img", ios::in | ios::binary);
+	if (pInFile.is_open()) {
+	unsigned char imgdata; 
+	pInFile.seekg(8); 
+	int xc , yc , xf, yf, xi,yi;
+	leer_dimensiones();
+	int fin[HEIGHT][WIDTH];
+	xc=WIDTH/2;//valor a truncar
+	yc=HEIGHT/2;
+	for (int i=0; i<HEIGHT; i++){
+	for (int j=0; j<WIDTH; j++){
+		xi=j-xc;
+		yi=i-yc;
+		xf=(cos gr*xi-sen gr * yi);
+		yf=(cos gr*xi-sen gr * yi);
+		pInFile.read( (char *)& imgdata,1);
+		fin[yf][xf]= imgdata;
+	}
+	}
+	}
+	return 0;
+ 
+
+}	
+
 void MaxMin(const char* img, const char* exit){
 	
-			ifstream pInFile;
+		ifstream pInFile;
 	pInFile.open("imagen.img", ios::in | ios::binary);
  	if (pInFile.is_open()) {
 		//leer_dimenciones(img);
@@ -232,7 +259,7 @@ void MaxMin(const char* img, const char* exit){
 		}
 		}
 		ofstream pOutFile ;
-    	pOutFile.open("maxmin.txt",  ios::trunc);
+    	pOutFile.open("maxmin.txt", ios::out | ios::trunc | ios::binary);
     	
     	if(!pOutFile) { 
     		cerr << "Cannot open file "<<endl; 
@@ -247,28 +274,13 @@ void MaxMin(const char* img, const char* exit){
     	cout<< colores[5]<<endl;
     	
     	
-   
-    	string s;
-		stringstream out;
-		
-	for (int i=0; i < 6; i++)
-	{	
-		 out << colores[i];
-		 if(i<5){
-		 	 out << ",";
-		 }
-		
-		 s = out.str(); 
-
-    
-		
-	}
-	cout<<s<<endl;
+    	
+    	
 		for (int i=0; i<6; i++){
 			//pOutFile.write("<", 1);
 		
 			
-   			pOutFile.write( (char *)&s, sizeof s); //write header data onto outpu
+   			pOutFile.write( (char *)&colores[i], sizeof colores[i]); //write header data onto outpu
 			//pOutFile.write(">", 1);
 		} 
    		 pOutFile.close(); //close stream

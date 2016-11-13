@@ -23,10 +23,13 @@ int main(int argc, char ** argv){
  //argc= numero de argumentos especificados por linea de comandos
 //argv[i] contiene el contenido del argumento i
   leer_dimensiones();
+  
+
+  
   cout<<"Hola"<<endl;
   
 
-
+/*
 
 	if(argc > 9){
  		cerr << "Numero de argumentos demasiado grande";
@@ -49,7 +52,7 @@ int main(int argc, char ** argv){
 	  
 
 	
-	if( strcmp(argv[2],"-0")){
+	if( strcmp(argv[2],"0")){
 		 if(strcmp(argv[7],"-t")){
 			cerr << "Histrograma: Se necesitan los argumentos -t <numero entero>"<<endl;
   			return 0;
@@ -59,7 +62,7 @@ int main(int argc, char ** argv){
 		      	}
 		
 	}	else
-	if( strcmp(argv[2],"-1")) { 
+	if( strcmp(argv[2],"1")) { 
 		 if (argc > 7){
 			cerr<<"Maximos y minimos: Demasiados argumentos"<<endl;
 			return 1;
@@ -68,7 +71,7 @@ int main(int argc, char ** argv){
 			//MaxMin(argv[4],argv[6]);
 		
 			}else
-	if(strcmp(argv[2],"-2")){
+	if(strcmp(argv[2],"2")){
 				 if(strcmp(argv[7],"-f")){
 				cerr << "Aplicar mascara: Se necesitan los argumentos -f <ruta>"<<endl;
   				return 1;
@@ -78,7 +81,7 @@ int main(int argc, char ** argv){
 		      	}
 			
 			}else
-				if(strcmp(argv[2],"-3")){
+				if(strcmp(argv[2],"3")){
 				 if(strcmp(argv[2],"-a")){
 				cerr << "Rotacion: Se necesita los argumentos -a <numero decimal>"<<endl;
   				return 0;
@@ -87,14 +90,14 @@ int main(int argc, char ** argv){
 			//	rotacion(argv[4],argv[6],argv[8]);
 		     	}
 				}else
-			if(strcmp(argv[2],"-4")){
+			if(strcmp(argv[2],"4")){
 				if(strcmp(argv[7],"-r")){
 				cerr << "Filtro blanco y negro: Se necesitan los argumentos -r <numero decimal positivo>"<<endl;
   				return 1;
 			} else{
 				
 				if( stoi(argv[8]) <0 ){
-					cerr<<"El radio del circulo a filtrar debe ser positivo"<endl;
+					cerr<<"El radio del circulo a filtrar debe ser positivo"<<endl;
 					return 1;
 				}
 				cout<<"Llamamos a la funcion filtro con los argumentos"<<argv[4]<<" "<<argv[6]<<" "<<argv[8]<<endl;
@@ -102,7 +105,8 @@ int main(int argc, char ** argv){
 		    	}
 		}else cerr << "Argumentos introducidos no validos"<<endl;
 		
-	
+	*/
+  
 	return 0;
 }
 

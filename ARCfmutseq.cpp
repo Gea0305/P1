@@ -19,39 +19,39 @@ void rotacion(const char* , const char* , int );
 	int WIDTH;
 	int matrix_size; //TamaÃ±o de la matriz sin contar con los bytes que indican el tamaÃ±o
 
-int main(int argc, char *argv[]){
+int main(int argc, char ** argv){
  //argc= numero de argumentos especificados por linea de comandos
 //argv[i] contiene el contenido del argumento i
   leer_dimensiones();
+  cout<<"Hola"<<endl;
   
-  cout<<argv[1]<<endl;
-  //cout<<argv[2]<<endl;
-  cout<<argv[3]<<endl;
-  //cout<<argv[4]<<endl;
-  cout<<argv[5]<<endl;
-  //cout<<argv[6]<<endl;
-  cout<<argc<<endl;
+
+
+
 	if(argc > 9){
  		cerr << "Numero de argumentos demasiado grande";
   		return 1;
   	} 
-  		if(argv[1]!= "-u" ){
-		cerr << "Arguementos no validos: falta el argumento -u";
+
+  		if( strcmp(argv[1],"-u") ){
+		cerr << "Arguementos no validos: falta el argumento -u"<<endl;
  		return 1;
-	}	if(argv[3]!= "-i" ){
-		cerr << "Arguementos no validos: falta el argumento -u";
+	}	
+		
+		if( strcmp(argv[3],"-i") ){
+		cerr << "Arguementos no validos: falta el argumento -i"<<endl;
  		return 1;
 	}
-	if(argv[5]!= "-o" ){
-		cerr << "Arguementos no validos: falta el argumento -u";
+	if(strcmp(argv[5],"-o")){
+		cerr << "Arguementos no validos: falta el argumento -o"<<endl;
  		return 1;
 	} 
 	  
 
 	
-	if( argv[2]=="0" ){
-		 if(argv[7]!= "-t"){
-			cerr << "Histrograma: Se necesitan los argumentos -t <numero entero>";
+	if( strcmp(argv[2],"-0")){
+		 if(strcmp(argv[7],"-t")){
+			cerr << "Histrograma: Se necesitan los argumentos -t <numero entero>"<<endl;
   			return 0;
 			} else {
 				cout<<"Llamamos a la funcion histograma con los argumentos"<<argv[4]<<" "<<argv[6]<<" "<<argv[8]<<endl;
@@ -59,18 +59,18 @@ int main(int argc, char *argv[]){
 		      	}
 		
 	}	else
-	if( argv[2]=="1") { 
+	if( strcmp(argv[2],"-1")) { 
 		 if (argc > 7){
-			cerr<<"Maximos y minimos: Demasiados argumentos";
+			cerr<<"Maximos y minimos: Demasiados argumentos"<<endl;
 			return 1;
 			}
 			cout<<"Llamamos a la funcion MAXMIN con los argumentos"<<argv[4]<<" "<<argv[6]<<endl;
 			//MaxMin(argv[4],argv[6]);
 		
 			}else
-	if(argv[2]=="2"){
-				 if(argv[7]!= "-f"){
-				cerr << "Aplicar mascara: Se necesitan los argumentos -f <ruta>";
+	if(strcmp(argv[2],"-2")){
+				 if(strcmp(argv[7],"-f")){
+				cerr << "Aplicar mascara: Se necesitan los argumentos -f <ruta>"<<endl;
   				return 1;
 			} else{
 				cout<<"Llamamos a la funcion aplicar_mascara con los argumentos"<<argv[4]<<" "<<argv[6]<<" "<<argv[8]<<endl;
@@ -78,29 +78,29 @@ int main(int argc, char *argv[]){
 		      	}
 			
 			}else
-				if(argv[2]=="3"){
-				 if(argv[7]!= "-a"){
-				cerr << "Rotacion: Se necesita los argumentos -a <numero decimal>";
+				if(strcmp(argv[2],"-3")){
+				 if(strcmp(argv[2],"-a")){
+				cerr << "Rotacion: Se necesita los argumentos -a <numero decimal>"<<endl;
   				return 0;
 			} else{
 				cout<<"Llamamos a la funcion rotacion con los argumentos"<<argv[4]<<" "<<argv[6]<<" "<<argv[8]<<endl;
 			//	rotacion(argv[4],argv[6],argv[8]);
 		     	}
 				}else
-			if(argv[2]=="4"){
-				if(argv[7]!= "-r"){
-				cerr << "Filtro blanco y negro: Se necesitan los argumentos -r <numero decimal positivo>";
+			if(strcmp(argv[2],"-4")){
+				if(strcmp(argv[7],"-r")){
+				cerr << "Filtro blanco y negro: Se necesitan los argumentos -r <numero decimal positivo>"<<endl;
   				return 1;
 			} else{
 				
-				if(argv[8]<0){
-					cerr<<"El radio del circulo a filtrar debe ser positivo";
+				if( stoi(argv[8]) <0 ){
+					cerr<<"El radio del circulo a filtrar debe ser positivo"<endl;
 					return 1;
 				}
 				cout<<"Llamamos a la funcion filtro con los argumentos"<<argv[4]<<" "<<argv[6]<<" "<<argv[8]<<endl;
 				//filtro(argv[4],argv[6],argv[8]);
 		    	}
-		}else cerr << "Argumentos introducidos no validos";
+		}else cerr << "Argumentos introducidos no validos"<<endl;
 		
 	
 	return 0;
@@ -175,8 +175,7 @@ void aplicar_mascara(){
     //Donde almacenamos los datos tienen que ser unsigned char, ya que van desde 0 a 255    
 	unsigned char ImageData; 
 	unsigned char MaskData; 
-	int dato_imagen;
-	int dato_mascara;
+		
 	int contador=0;
 	
 	
@@ -224,23 +223,24 @@ void rotacion(const char* img, const char* exit, int gr){
 			pInFile.seekg(8); 
 			int xc , yc , xf, yf, xi,yi;
 	
-			int fin[HEIGHT][WIDTH];
+			int fin[WIDTH][HEIGHT];
 			 //Con el ceil, redondeamos al de arriba
 			xc=ceil(WIDTH/2);
 			yc=ceil(HEIGHT/2);
 			
-			for (int i=0; i<HEIGHT; i++){
-				for (int j=0; j<WIDTH; j++){
+			for (int i=0; i<WIDTH; i++){
+				for (int j=0; j<HEIGHT; j++){
 					xi=j-xc;
 					yi=i-yc;
 					xf=(cos(gr/180*PI)*xi-sin(gr/180*PI) * yi);
 					yf=(sin(gr/180*PI)*xi-cos(gr/180*PI) * yi);
 					pInFile.read( (char *)& imgdata,1);
-					if(yf<=HEIGHT && yf>=0 && xf<=HEIGHT && xf>=0){
-						fin[yf][xf]= imgdata;
-						if (fin[i][j] == NULL){
+					if(yf<=HEIGHT && yf>=0 && xf<=WIDTH && xf>=0){
+
+						fin[xf][yf]= imgdata;
+						/*if (fin[i][j] == NULL){
 							fin[i][j]= 0;
-						}
+						}*/
 					}
 				}
 			}

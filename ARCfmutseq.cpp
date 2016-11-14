@@ -232,10 +232,10 @@ void rotacion(const char* img, const char* exit, int gr){
 			xc=ceil(WIDTH/2);
 			yc=ceil(HEIGHT/2);
 			
-			for (int i=0; i<WIDTH; i++){
-				for (int j=0; j<HEIGHT; j++){
-					xi=j-xc;
-					yi=i-yc;
+			for (int j=0; j<HEIGHT; j++){
+				for (int i=0; i<WIDTH; i++){
+					xi=i-xc;
+					yi=j-yc;
 					xf=(cos(gr/180*PI)*xi-sin(gr/180*PI) * yi);
 					yf=(sin(gr/180*PI)*xi-cos(gr/180*PI) * yi);
 					pInFile.read( (char *)& imgdata,1);

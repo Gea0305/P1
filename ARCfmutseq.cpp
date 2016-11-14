@@ -229,17 +229,17 @@ void rotacion(const char* img, const char* exit, int gr){
 	
 			int fin[WIDTH][HEIGHT];
 			 //Con el ceil, redondeamos al de arriba
-			xc=ceil(WIDTH/2);
-			yc=ceil(HEIGHT/2);
+			xc=trunc(WIDTH/2);
+			yc=trunc(HEIGHT/2);
 			
 			for (int j=0; j<HEIGHT; j++){
 				for (int i=0; i<WIDTH; i++){
 					xi=i-xc;
 					yi=j-yc;
-					xf=(cos(gr/180*PI)*xi-sin(gr/180*PI) * yi);
-					yf=(sin(gr/180*PI)*xi-cos(gr/180*PI) * yi);
+					xf= ceil( (cos(gr*PI/180)*xi-sin(gr*PI/180) * yi) +xc);
+					yf= ceil( (sin(gr*PI/180)*xi+cos(gr*PI/180) * yi) +yc);
 					pInFile.read( (char *)& imgdata,1);
-					if(yf<=HEIGHT && yf>=0 && xf<=WIDTH && xf>=0){
+					if(yf<HEIGHT && yf>=0 && xf<WIDTH && xf>=0){
 
 						fin[xf][yf]= imgdata;
 						/*if (fin[i][j] == NULL){

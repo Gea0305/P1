@@ -13,7 +13,7 @@ using namespace std;
 void leer_dimensiones();
 void aplicar_mascara();
 void MaxMin();
-void rotacion(const char* , const char* , int );	
+void rotacion();	
 	
 	int HEIGHT;
 	int WIDTH;
@@ -219,7 +219,7 @@ void aplicar_mascara(){
 	
 }
 
-void rotacion(const char* img, const char* exit, int gr){
+void rotacion(/*const char* img, const char* exit, int gr*/){
 	ifstream pInFile;
 	pInFile.open("imagen.img", ios::in | ios::binary);
 		if (pInFile.is_open()) {
@@ -252,7 +252,7 @@ void rotacion(const char* img, const char* exit, int gr){
 
 }	
 
-void MaxMin(const char* img, const char* exit){
+void MaxMin(/*const char* img, const char* exit*/){
 	
 		ifstream pInFile;
 	pInFile.open("imagen.img", ios::in | ios::binary);

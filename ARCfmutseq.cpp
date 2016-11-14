@@ -223,33 +223,79 @@ void rotacion(/*const char* img, const char* exit, int gr*/){
 	ifstream pInFile;
 	pInFile.open("imagen.img", ios::in | ios::binary);
 		if (pInFile.is_open()) {
-			unsigned char imgdata; 
-			pInFile.seekg(8); 
+			
+			
+			//Creamos el ofstream, para escribir en el fichero de salida
+         	ofstream pOutFile;
+			pOutFile.open("rot_out.img", ios::out | ios::trunc | ios::binary);	
+			
+         	if(!pInFile) { 
+    		cout << "Cannot open file"<<endl;  
+   			} 
+   			
+   			
+		 unsigned char imgdata; 
+		
+		//Escribimos en el rot_out, los primeros 8 bytes de su tamaÃ±o, que sera el tamaÃ±o de la imagen de entrada
+	   	unsigned char heightData[4]; 
+		unsigned char widthData[4]; 
+	   pInFile.seekg(0, ios::beg); //pos filter at beginning of image file.
+	 
+		 //Leo los 4 primeros bytes
+			pInFile.read( (char *)& heightData, 4 ); //Lees la altura
+		 	pInFile.read( (char *)& widthData, 4); 
+		 	
+		 	//Escribo en el fichero de salida, los tamaÃ±os de la matriz
+		 		pOutFile.write( (char *)& heightData, 4);
+		 		pOutFile.write( (char *)& widthData, 4);
+		 		
+		 		
+		 		
+		 		
 			int xc , yc , xf, yf, xi,yi;
 	
-			int fin[WIDTH][HEIGHT];
+			 char fin[WIDTH][HEIGHT];
+			
 			 //Con el ceil, redondeamos al de arriba
 			xc=trunc(WIDTH/2);
 			yc=trunc(HEIGHT/2);
+		
+			
+			
+			cout<<"El centro es xc:"<<xc<<" yc:"<<yc<<endl;
 			
 			for (int j=0; j<HEIGHT; j++){
 				for (int i=0; i<WIDTH; i++){
 					xi=i-xc;
 					yi=j-yc;
-					xf= ceil( (cos(gr*PI/180)*xi-sin(gr*PI/180) * yi) +xc);
-					yf= ceil( (sin(gr*PI/180)*xi+cos(gr*PI/180) * yi) +yc);
+					
+					
+					xf= ceil( cos( (90*PI)/180 )*xi   - sin( (90*PI)/180)*yi +xc);
+					
+					
+					yf= ceil( sin( (90*PI)/180 )*xi   + cos( (90*PI)/180)*yi +yc);
+					
+					
+					
 					pInFile.read( (char *)& imgdata,1);
+					
 					if(yf<HEIGHT && yf>=0 && xf<WIDTH && xf>=0){
-
+					
 						fin[xf][yf]= imgdata;
-						/*if (fin[i][j] == NULL){
-							fin[i][j]= 0;
-						}*/
+					
 					}
 				}
 			}
+			
+			
+		for (int j=0; j<HEIGHT; j++){
+				for (int i=0; i<WIDTH; i++){	
+				
+				pOutFile.write( (char *)& fin[i][j], 1);
+			
+		}}
+		
 		}
-
 }	
 
 void MaxMin(/*const char* img, const char* exit*/){

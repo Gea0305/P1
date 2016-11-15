@@ -12,6 +12,7 @@ using namespace std;
 //Prototipado de las funciones
 void leer_dimensiones();
 void aplicar_mascara();
+void aplicar_filtro(const char*, const char*, int);
 void MaxMin();
 void rotacion();	
 	
@@ -271,7 +272,71 @@ void aplicar_mascara(){
 	}
 	
 }
-
+void aplicar_filtro(const char* img, const char* exit, int r){ // const char* img, const char* exit, int r
+    ifstream pInImagen;
+    pInImagen.open(img, ios::in | ios::binary); // open fileName and read as binary.
+    if (pInImagen.is_open()) {
+	ofstream pOutFile;
+	pOutFile.open(exit, ios::out | ios::trunc | ios::binary);
+	if(!pOutFile) {
+	cout << "Cannot open file"<<endl;
+	}
+	//Escribimos en el mask_out, los primeros 8 bytes de su tamaÃ±o, que sera el tamaÃ±o de la imagen de entrada
+	unsigned char heightData[4];
+	unsigned char widthData[4];
+	pInImagen.seekg(0, ios::beg); //pos filter at beginning of image file.
+	//Leo los 4 primeros bytes
+	pInImagen.read( (char *)& heightData, 4 ); //Lees la altura
+	pInImagen.read( (char *)& widthData, 4);
+	//Escribo en el fichero de salida, los tamaÃ±os de la matriz
+	pOutFile.write( (char *)& heightData, 4);
+	pOutFile.write( (char *)& widthData, 4);
+        pInImagen.seekg(8);
+        struct punto{
+            int x;
+            int y;
+        };
+        struct punto centro, p;
+	unsigned char ImageData;
+	int contador=0;
+        centro.x=trunc(WIDTH/2);
+        centro.y=trunc(HEIGHT/2);
+        for (int i=0; i<HEIGHT; i++){
+            for (int j=0; j<WIDTH; j++){
+                p.x= i-centro.x;
+                p.y= j-centro.y;
+                if (p.x * p.x + p.y * p.y > r*r){
+                   pInImagen.read((char *)& ImageData,1);
+		   if(contador<1024){
+		   	ImageData = ImageData * 0.3;
+		   }
+		   if(contador>=1024 && contador<2048){
+		   	ImageData = ImageData * 0.59;
+		   }
+		   if(contador>=(2048)){
+		   	ImageData = ImageData * 0.11;
+		   }
+		   pOutFile.write((char *) &ImageData, 1); 
+		   contador++;
+		   if(contador==1024 || contador == 2048){
+			i=0; 
+			j=-1; //-1 Porque se va a actualizar en la siguiente iteración (no se puede poner arriba porque se saldria 					del bucle antes de reinciar i y j
+		   }
+                }
+		else{
+			pInImagen.read((char *)& ImageData,1);
+			pOutFile.write((char *) &ImageData, 1);
+			contador++;
+		}
+            }
+        }
+	pInImagen.close();
+	pOutFile.close();
+    } 
+	else{
+		cerr<<"Error opening image.img"<<endl;  
+	}
+}
 void rotacion(/*const char* img, const char* exit, int gr*/){
 	ifstream InFile;
 	InFile.open("imagen.img", ios::in | ios::binary);

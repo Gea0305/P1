@@ -32,7 +32,8 @@ int main(int argc, char ** argv){
    int cont=1;
    int num_funcion=-1;
    int num_histograma=-1;
-   double num_decimal=-1;
+   double num_angulo=-1;
+   double num_radio=-1;
    string in_file="";
    string out_file="";
    string path_mascara="";
@@ -72,12 +73,12 @@ int main(int argc, char ** argv){
         }
         else if (sw=="-a") {
             cont++;
-            num_decimal = atof(argv[cont]);
+            num_angulo = atof(argv[cont]);
         }
         else if (sw=="-r") {
             cont++;
-            num_decimal = atof(argv[cont]);
-            	if(num_decimal<0){
+            num_radio = atof(argv[cont]);
+            	if(num_radio<0){
             		cerr<<"El numero del radio no es valido"<<endl;
             		return 1;
             	}
@@ -130,7 +131,7 @@ int main(int argc, char ** argv){
 					cout<<"Funcion mascara"<<endl;
 					aplicar_mascara();
 					break;
-		case(3):	if(num_decimal<0){
+		case(3):	if(num_angulo<0){
 					cerr<<"Falta introducir -a angulo_rotar"<<endl;
 					return 1;
 					}
@@ -141,7 +142,7 @@ int main(int argc, char ** argv){
 					cout<<"Rotacion de la imagen"<<endl;
 					rotacion();
 					break;
-		case(4):	if(num_decimal<0){
+		case(4):	if(num_radio<0){
 					cerr<<"Falta introducir -r radio_circulo"<<endl;
 					return 1;
 					}

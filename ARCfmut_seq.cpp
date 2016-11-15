@@ -442,7 +442,7 @@ void MaxMin(string ImageFile, string OutputFile){
 
 
 void aplicar_filtro(string ImageFile, string OutputFile, double r){ 
-    ifstream pInImagen;
+   ifstream pInImagen;
     pInImagen.open(ImageFile, ios::in | ios::binary); // 
     if (pInImagen.is_open()) {
 	ofstream pOutFile;
@@ -467,38 +467,72 @@ void aplicar_filtro(string ImageFile, string OutputFile, double r){
         };
         struct punto centro, p;
 	unsigned char ImageData;
-	int contador=0;
+	
         centro.x=WIDTH/2;
         centro.y=HEIGHT/2;
-        for (int i=0; i<HEIGHT; i++){
-            for (int j=0; j<WIDTH; j++){
-                p.x= i-centro.x;
-                p.y= j-centro.y;
-                if (p.x * p.x + p.y * p.y > r*r){
-                   pInImagen.read((char *)& ImageData,1);
-		   if(contador<(matrix_size/3)){
-		   	ImageData = ImageData * 0.3;
-		   }
-		   if(contador>= (matrix_size/3) && contador<(matrix_size*2/3)){
-		   	ImageData = ImageData * 0.59;
-		   }
-		   if(contador>=(matrix_size*2/3)){
-		   	ImageData = ImageData * 0.11;
-		   }
-		   pOutFile.write((char *) &ImageData, 1); 
-		   contador++;
-		   if(contador== matrix_size/3 || contador == (matrix_size*2/3) ){
-			i=0; 
-			j=-1; //-1 Porque se va a actualizar en la siguiente iteración (no se puede poner arriba porque se saldria 					del bucle antes de reinciar i y j
-		   }
-                }
-		else{
-			pInImagen.read((char *)& ImageData,1);
-			pOutFile.write((char *) &ImageData, 1);
-			contador++;
-		}
-            }
+
+        //Para el color rojo
+        for(int j =0; j<HEIGHT; j++){
+        	for(int i=0; i<WIDTH; i++){
+        			 p.x= i-centro.x;
+               		 p.y= j-centro.y;
+
+               		 //Si esta fuera del radio, lo cambio de color
+               		 if (p.x * p.x + p.y * p.y > r*r){
+                   	 pInImagen.read((char *)& ImageData,1);
+                   	 ImageData = floor(ImageData * 0.3);
+                   	 pOutFile.write((char *) &ImageData, 1); 
+
+               }else{
+               //Si esta dentro del radio, escribo el mismo dato sin modificar
+               pInImagen.read((char *)& ImageData,1);
+			   pOutFile.write((char *) &ImageData, 1); }
+			}
         }
+        //Para el color verde
+         for(int j =0; j<HEIGHT; j++){
+        	for(int i=0; i<WIDTH; i++){
+        			 p.x= i-centro.x;
+               		 p.y= j-centro.y;
+
+               		 //Si esta fuera del radio, lo cambio de color
+               		 if (p.x * p.x + p.y * p.y > r*r){
+                   	 pInImagen.read((char *)& ImageData,1);
+                   	 ImageData = floor(ImageData * 0.59);
+                   	 pOutFile.write((char *) &ImageData, 1); 
+
+               }else{
+               //Si esta dentro del radio, escribo el mismo dato sin modificar
+               pInImagen.read((char *)& ImageData,1);
+			   pOutFile.write((char *) &ImageData, 1); }
+}
+        }
+        //Para el azul
+         for(int j =0; j<HEIGHT; j++){
+        	for(int i=0; i<WIDTH; i++){
+        	 		p.x= i-centro.x;
+               		 p.y= j-centro.y;
+
+               		 //Si esta fuera del radio, lo cambio de color
+               		 if (p.x * p.x + p.y * p.y > r*r){
+                   	 pInImagen.read((char *)& ImageData,1);
+                   	 ImageData = floor(ImageData * 0.11);
+                   	 pOutFile.write((char *) &ImageData, 1); 
+
+               }else{
+               //Si esta dentro del radio, esbrio el mismo dato sin modificar
+               pInImagen.read((char *)& ImageData,1);
+			   pOutFile.write((char *) &ImageData, 1); }
+}
+        }
+
+       
+	pInImagen.close();
+	pOutFile.close();
+    } 
+	else{
+		cerr<<"Error al abrir el fichero "<<ImageFile<<endl;  
+	}
 	pInImagen.close();
 	pOutFile.close();
     } 

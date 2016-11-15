@@ -305,10 +305,12 @@ void rotacion(/*const char* img, const char* exit, int gr*/){
 		 		
 		 		
 			int xc , yc , xf, yf, xi,yi;
+
 	
-			 char fin[WIDTH][HEIGHT];
+			 unsigned char fin[WIDTH][HEIGHT]; //= {0};
+			 memset(fin, 0, WIDTH*HEIGHT);
 			
-			 //Con el ceil, redondeamos al de arriba
+			 //Calculamos el centro de la imagen
 			xc=trunc(WIDTH/2);
 			yc=trunc(HEIGHT/2);
 		
@@ -316,16 +318,19 @@ void rotacion(/*const char* img, const char* exit, int gr*/){
 			
 			cout<<"El centro es xc:"<<xc<<" yc:"<<yc<<endl;
 			
-			for (int j=0; j<HEIGHT; j++){
+			int num_colores= 0;
+			while(num_colores<3){
+
+				for (int j=0; j<HEIGHT; j++){
 				for (int i=0; i<WIDTH; i++){
 					xi=i-xc;
 					yi=j-yc;
 					
 					
-					xf= ceil( cos( (90*PI)/180 )*xi   - sin( (90*PI)/180)*yi +xc);
+					xf= ceil( cos((90*PI)/180)*xi - sin((90*PI)/180)*yi +xc);
 					
 					
-					yf= ceil( sin( (90*PI)/180 )*xi   + cos( (90*PI)/180)*yi +yc);
+					yf= ceil( sin((90*PI)/180)*xi + cos((90*PI)/180)*yi +yc);
 					
 					
 					
@@ -346,8 +351,17 @@ void rotacion(/*const char* img, const char* exit, int gr*/){
 				pOutFile.write( (char *)& fin[i][j], 1);
 			
 		}}
+
+				num_colores++;
+				memset(fin, 0, WIDTH*HEIGHT);
+			}
+			
 		
-		}
+		}else{
+		cerr<<"Error opening image.img"<<endl;
+		return;	
+		} 
+
 }	
 
 void MaxMin(/*const char* img, const char* exit*/){

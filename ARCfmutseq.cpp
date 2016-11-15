@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <cstring>
 #include <math.h>
-
+//comparar ficheros comando linux: diff (ruta fichero) (ruta fichero) 
 #define PI 3.14159265
 using namespace std;
 //Prototipado de las funciones
@@ -424,12 +424,9 @@ void MaxMin(/*const char* img, const char* exit*/){
    			
    			} 
 		for (int i=0; i<6; i++){
-			
-		
-			
    			pOutFile<<colores[i]; 
    			if(i<5){
-   			pOutFile<<",";
+   			pOutFile<<" ";
 			}
 		} 
    		 pOutFile.close(); 

@@ -272,19 +272,19 @@ void aplicar_mascara(){
 	}
 	
 }
-void aplicar_filtro(const char* img, const char* exit, int r){ // const char* img, const char* exit, int r
+void aplicar_filtro(const char* img, const char* exit, int r){ 
     ifstream pInImagen;
-    pInImagen.open(img, ios::in | ios::binary); // open fileName and read as binary.
+    pInImagen.open(img, ios::in | ios::binary); // 
     if (pInImagen.is_open()) {
 	ofstream pOutFile;
 	pOutFile.open(exit, ios::out | ios::trunc | ios::binary);
 	if(!pOutFile) {
 	cout << "Cannot open file"<<endl;
 	}
-	//Escribimos en el mask_out, los primeros 8 bytes de su tamaÃ±o, que sera el tamaÃ±o de la imagen de entrada
+	//Escribimos en el circle_out, los primeros 8 bytes de su tamaÃ±o, que sera el tamaÃ±o de la imagen de entrada
 	unsigned char heightData[4];
 	unsigned char widthData[4];
-	pInImagen.seekg(0, ios::beg); //pos filter at beginning of image file.
+	pInImagen.seekg(0, ios::beg); 
 	//Leo los 4 primeros bytes
 	pInImagen.read( (char *)& heightData, 4 ); //Lees la altura
 	pInImagen.read( (char *)& widthData, 4);

@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <cstring>
 #include <math.h>
-
+//comparar ficheros comando linux: diff (ruta fichero) (ruta fichero) 
 #define PI 3.14159265
 using namespace std;
 //Prototipado de las funciones
@@ -18,6 +18,7 @@ void rotacion();
 	int HEIGHT;
 	int WIDTH;
 	int matrix_size; //TamaÃ±o de la matriz sin contar con los bytes que indican el tamaÃ±o
+	unsigned char matrizzz[][];
 
 int main(int argc, char ** argv){
  //argc= numero de argumentos especificados por linea de comandos
@@ -32,7 +33,8 @@ int main(int argc, char ** argv){
    int cont=1;
    int num_funcion=-1;
    int num_histograma=-1;
-   double num_decimal=-1;
+   double num_angulo=-1;
+   double num_radio=-1;
    string in_file="";
    string out_file="";
    string path_mascara="";
@@ -72,12 +74,12 @@ int main(int argc, char ** argv){
         }
         else if (sw=="-a") {
             cont++;
-            num_decimal = atof(argv[cont]);
+            num_angulo = atof(argv[cont]);
         }
         else if (sw=="-r") {
             cont++;
-            num_decimal = atof(argv[cont]);
-            	if(num_decimal<0){
+            num_radio = atof(argv[cont]);
+            	if(num_radio<0){
             		cerr<<"El numero del radio no es valido"<<endl;
             		return 1;
             	}
@@ -130,7 +132,7 @@ int main(int argc, char ** argv){
 					cout<<"Funcion mascara"<<endl;
 					aplicar_mascara();
 					break;
-		case(3):	if(num_decimal<0){
+		case(3):	if(num_angulo<0){
 					cerr<<"Falta introducir -a angulo_rotar"<<endl;
 					return 1;
 					}
@@ -141,7 +143,7 @@ int main(int argc, char ** argv){
 					cout<<"Rotacion de la imagen"<<endl;
 					rotacion();
 					break;
-		case(4):	if(num_decimal<0){
+		case(4):	if(num_radio<0){
 					cerr<<"Falta introducir -r radio_circulo"<<endl;
 					return 1;
 					}
@@ -305,10 +307,12 @@ void rotacion(/*const char* img, const char* exit, int gr*/){
 		 		
 		 		
 			int xc , yc , xf, yf, xi,yi;
+
 	
-			 char fin[WIDTH][HEIGHT];
+			 unsigned char fin[WIDTH][HEIGHT]; //= {0};
+			 memset(fin, 0, WIDTH*HEIGHT);
 			
-			 //Con el ceil, redondeamos al de arriba
+			 //Calculamos el centro de la imagen
 			xc=trunc(WIDTH/2);
 			yc=trunc(HEIGHT/2);
 		
@@ -316,16 +320,19 @@ void rotacion(/*const char* img, const char* exit, int gr*/){
 			
 			cout<<"El centro es xc:"<<xc<<" yc:"<<yc<<endl;
 			
-			for (int j=0; j<HEIGHT; j++){
+			int num_colores= 0;
+			while(num_colores<3){
+
+				for (int j=0; j<HEIGHT; j++){
 				for (int i=0; i<WIDTH; i++){
 					xi=i-xc;
 					yi=j-yc;
 					
 					
-					xf= ceil( cos( (90*PI)/180 )*xi   - sin( (90*PI)/180)*yi +xc);
+					xf= ceil( cos((90*PI)/180)*xi - sin((90*PI)/180)*yi +xc);
 					
 					
-					yf= ceil( sin( (90*PI)/180 )*xi   + cos( (90*PI)/180)*yi +yc);
+					yf= ceil( sin((90*PI)/180)*xi + cos((90*PI)/180)*yi +yc);
 					
 					
 					
@@ -346,9 +353,30 @@ void rotacion(/*const char* img, const char* exit, int gr*/){
 				pOutFile.write( (char *)& fin[i][j], 1);
 			
 		}}
+
+				num_colores++;
+				memset(fin, 0, WIDTH*HEIGHT);
+			}
+			
 		
-		}
+		}else{
+		cerr<<"Error opening image.img"<<endl;
+		return;	
+		} 
+
 }	
+
+void guardar_imagen(const char* img){
+	ifstream pInFile;
+	pInFile.open("imagen.img", ios::in | ios::binary);
+ 	if (pInFile.is_open()) {
+		pInFile.seekg(8); 
+		for (int i =0; i < (HEIGHT) ; i++){
+			for(int j=0; j<(WIDTH); j++)
+			pInFile.read( (char *)& matrizzz[i][j],1);
+		}
+	}	
+}
 
 void MaxMin(/*const char* img, const char* exit*/){
 	
@@ -409,12 +437,9 @@ void MaxMin(/*const char* img, const char* exit*/){
    			
    			} 
 		for (int i=0; i<6; i++){
-			
-		
-			
    			pOutFile<<colores[i]; 
    			if(i<5){
-   			pOutFile<<",";
+   			pOutFile<<" ";
 			}
 		} 
    		 pOutFile.close(); 

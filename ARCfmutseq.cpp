@@ -10,11 +10,11 @@
 
 using namespace std;
 //Prototipado de las funciones
-void leer_dimensiones();
-void aplicar_mascara();
-void aplicar_filtro(const char*, const char*, int);
-void MaxMin();
-void rotacion();	
+void leer_dimensiones(string );
+void aplicar_mascara(string ,string ,string );
+void MaxMin(string ,string );
+void rotacion(string , string , double );	
+void aplicar_filtro(string, string, double);
 	
 	int HEIGHT;
 	int WIDTH;
@@ -23,8 +23,7 @@ void rotacion();
 int main(int argc, char ** argv){
  //argc= numero de argumentos especificados por linea de comandos
 //argv[i] contiene el contenido del argumento i
-  leer_dimensiones();
-  
+   
 
   
   cout<<"Hola"<<endl;
@@ -102,6 +101,7 @@ int main(int argc, char ** argv){
     				return 1;
     				}
 
+    				 leer_dimensiones(in_file);
 
 
     //Seleccion del numero de funcion
@@ -119,7 +119,7 @@ int main(int argc, char ** argv){
     				cout<<"Funcion histograma blanco y negro"<<endl;
     				break;
 		case(1):	cout<<"Funcion maximos y minimos"<<endl;
-					MaxMin();
+					MaxMin(in_file, out_file);
 					break;
 		case(2):	if(path_mascara==""){
 					cerr<<"Falta introducir -f path_mascara"<<endl;
@@ -130,7 +130,7 @@ int main(int argc, char ** argv){
     				return 1;
     				}
 					cout<<"Funcion mascara"<<endl;
-					aplicar_mascara();
+					aplicar_mascara(in_file, out_file, path_mascara);
 					break;
 		case(3):	if(num_angulo<0){
 					cerr<<"Falta introducir -a angulo_rotar"<<endl;
@@ -141,7 +141,7 @@ int main(int argc, char ** argv){
     				return 1;
     				}
 					cout<<"Rotacion de la imagen"<<endl;
-					rotacion();
+					rotacion(in_file, out_file, num_angulo);
 					break;
 		case(4):	if(num_radio<0){
 					cerr<<"Falta introducir -r radio_circulo"<<endl;
@@ -152,6 +152,7 @@ int main(int argc, char ** argv){
     				return 1;
     				}
 					cout<<"Funcion de filtro blanco y negro selectivo"<<endl;
+					aplicar_filtro(in_file, out_file, num_radio);
 					break;
 		default:	cerr<<"Falta introducir -u numero_funcion"<<endl;
     }
@@ -164,10 +165,10 @@ int main(int argc, char ** argv){
 	return 0;
 }
 
-void leer_dimensiones(/*const char* fileName*/){
+void leer_dimensiones(string fileName){
 	
 	ifstream InFile;
-	InFile.open("imagen.img", ios::in | ios::binary); // open fileName and read as binary.
+	InFile.open(fileName, ios::in | ios::binary); // open fileName and read as binary.
     
     if (InFile.is_open()) {
         
@@ -199,23 +200,23 @@ void leer_dimensiones(/*const char* fileName*/){
 	
 }
 
-void aplicar_mascara(){
+void aplicar_mascara(string ImageFile, string MaskFile, string OutputFile){
 		
 	
 			ifstream InImagen;
-			InImagen.open("imagen.img", ios::in | ios::binary); // open fileName and read as binary.
+			InImagen.open(ImageFile, ios::in | ios::binary); // open fileName and read as binary.
     		ifstream InMascara;
-    		InMascara.open("mask.img", ios::in | ios::binary); 
+    		InMascara.open(MaskFile, ios::in | ios::binary); 
     		
    		 if (InImagen.is_open()) {
          if (InMascara.is_open()) {
          	
          	//Creamos el ofstream, para escribir en el fichero de salida
          	ofstream pOutFile;
-			pOutFile.open("mask_out.img", ios::out | ios::trunc | ios::binary);	
+			pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);	
 			
          	if(!pOutFile) { 
-    		cout << "Cannot open file"<<endl;  
+    		cout << "Error al abrir el fichero "<<OutputFile<<" para escribir"<<endl;  
    			} 
      //Escribimos en el mask_out, los primeros 8 bytes de su tamaÃ±o, que sera el tamaÃ±o de la imagen de entrada
 	   	unsigned char heightData[4]; 
@@ -266,89 +267,25 @@ void aplicar_mascara(){
 		
 			
 	}else{
-		cerr<<"Error opening mask.img"<<endl;
+		cerr<<"Error opening "<<MaskFile<<endl;
 	}}else{
-		cerr<<"Error opening image.img"<<endl;
+		cerr<<"Error opening "<<ImageFile<<endl;
 	}
 	
 }
-void aplicar_filtro(const char* img, const char* exit, int r){ 
-    ifstream pInImagen;
-    pInImagen.open(img, ios::in | ios::binary); // 
-    if (pInImagen.is_open()) {
-	ofstream pOutFile;
-	pOutFile.open(exit, ios::out | ios::trunc | ios::binary);
-	if(!pOutFile) {
-	cout << "Cannot open file"<<endl;
-	}
-	//Escribimos en el circle_out, los primeros 8 bytes de su tamaÃ±o, que sera el tamaÃ±o de la imagen de entrada
-	unsigned char heightData[4];
-	unsigned char widthData[4];
-	pInImagen.seekg(0, ios::beg); 
-	//Leo los 4 primeros bytes
-	pInImagen.read( (char *)& heightData, 4 ); //Lees la altura
-	pInImagen.read( (char *)& widthData, 4);
-	//Escribo en el fichero de salida, los tamaÃ±os de la matriz
-	pOutFile.write( (char *)& heightData, 4);
-	pOutFile.write( (char *)& widthData, 4);
-        pInImagen.seekg(8);
-        struct punto{
-            int x;
-            int y;
-        };
-        struct punto centro, p;
-	unsigned char ImageData;
-	int contador=0;
-        centro.x=trunc(WIDTH/2);
-        centro.y=trunc(HEIGHT/2);
-        for (int i=0; i<HEIGHT; i++){
-            for (int j=0; j<WIDTH; j++){
-                p.x= i-centro.x;
-                p.y= j-centro.y;
-                if (p.x * p.x + p.y * p.y > r*r){
-                   pInImagen.read((char *)& ImageData,1);
-		   if(contador<1024){
-		   	ImageData = ImageData * 0.3;
-		   }
-		   if(contador>=1024 && contador<2048){
-		   	ImageData = ImageData * 0.59;
-		   }
-		   if(contador>=(2048)){
-		   	ImageData = ImageData * 0.11;
-		   }
-		   pOutFile.write((char *) &ImageData, 1); 
-		   contador++;
-		   if(contador==1024 || contador == 2048){
-			i=0; 
-			j=-1; //-1 Porque se va a actualizar en la siguiente iteración (no se puede poner arriba porque se saldria 					del bucle antes de reinciar i y j
-		   }
-                }
-		else{
-			pInImagen.read((char *)& ImageData,1);
-			pOutFile.write((char *) &ImageData, 1);
-			contador++;
-		}
-            }
-        }
-	pInImagen.close();
-	pOutFile.close();
-    } 
-	else{
-		cerr<<"Error opening image.img"<<endl;  
-	}
-}
-void rotacion(/*const char* img, const char* exit, int gr*/){
+
+void rotacion(string ImageFile, string OutputFile, double gr){
 	ifstream InFile;
-	InFile.open("imagen.img", ios::in | ios::binary);
+	InFile.open(ImageFile, ios::in | ios::binary);
 		if (InFile.is_open()) {
 			
 			
 			//Creamos el ofstream, para escribir en el fichero de salida
          	ofstream pOutFile;
-			pOutFile.open("rot_out.img", ios::out | ios::trunc | ios::binary);	
+			pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);	
 			
-         	if(!InFile) { 
-    		cout << "Cannot open file"<<endl;  
+         	if(!pOutFile) { 
+    		cout << "Error al abrir el fichero "<<OutputFile<<" para escribir"<<endl;  
    			} 
    			
    			
@@ -393,10 +330,10 @@ void rotacion(/*const char* img, const char* exit, int gr*/){
 					yi=j-yc;
 					
 					
-					xf= ceil( cos((90*M_PI)/180)*xi - sin((90*M_PI)/180)*yi +xc);
+					xf= ceil( cos((gr*M_PI)/180)*xi - sin((gr*M_PI)/180)*yi +xc);
 					
 					
-					yf= ceil( sin((90*M_PI)/180)*xi + cos((90*M_PI)/180)*yi +yc);
+					yf= ceil( sin((gr*M_PI)/180)*xi + cos((gr*M_PI)/180)*yi +yc);
 					
 					
 					
@@ -424,16 +361,16 @@ void rotacion(/*const char* img, const char* exit, int gr*/){
 			
 		
 		}else{
-		cerr<<"Error opening image.img"<<endl;
+		cerr<<"Error al abrir "<<ImageFile<<endl;
 		return;	
 		} 
 
 }	
 
-void MaxMin(/*const char* img, const char* exit*/){
+void MaxMin(string ImageFile, string OutputFile){
 	
 		ifstream InFile;
-	InFile.open("imagen.img", ios::in | ios::binary);
+	InFile.open(ImageFile, ios::in | ios::binary);
  	if (InFile.is_open()) {
 		//leer_dimenciones(img);
 		unsigned char imgdata; 
@@ -482,10 +419,10 @@ void MaxMin(/*const char* img, const char* exit*/){
 		}
 		}
 		ofstream pOutFile;
-    	pOutFile.open("maxmin.txt", ios::out | ios::trunc | ios::binary);
+    	pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
     	
     	if(!pOutFile) { 
-    		cerr << "Cannot open file "<<endl; 
+    		cerr << "No se puede abrir el fichero "<<OutputFile<<"Para escribir"<<endl; 
    			
    			} 
 		for (int i=0; i<6; i++){
@@ -499,12 +436,76 @@ void MaxMin(/*const char* img, const char* exit*/){
 		} 
    		 pOutFile.close(); 
 	 }else{
-	 	cerr<<"Error opening imagen.img"<<endl;
+	 	cerr<<"Error al abrir el fichero "<<ImageFile<<endl;
 	 }
 }
 
 
-
+void aplicar_filtro(string ImageFile, string OutputFile, double r){ 
+    ifstream pInImagen;
+    pInImagen.open(ImageFile, ios::in | ios::binary); // 
+    if (pInImagen.is_open()) {
+	ofstream pOutFile;
+	pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
+	if(!pOutFile) {
+	cout << "Cannot open file"<<endl;
+	}
+	//Escribimos en el circle_out, los primeros 8 bytes de su tamaÃ±o, que sera el tamaÃ±o de la imagen de entrada
+	unsigned char heightData[4];
+	unsigned char widthData[4];
+	pInImagen.seekg(0, ios::beg); 
+	//Leo los 4 primeros bytes
+	pInImagen.read( (char *)& heightData, 4 ); //Lees la altura
+	pInImagen.read( (char *)& widthData, 4);
+	//Escribo en el fichero de salida, los tamaÃ±os de la matriz
+	pOutFile.write( (char *)& heightData, 4);
+	pOutFile.write( (char *)& widthData, 4);
+        pInImagen.seekg(8);
+        struct punto{
+            double x;
+            double y;
+        };
+        struct punto centro, p;
+	unsigned char ImageData;
+	int contador=0;
+        centro.x=WIDTH/2;
+        centro.y=HEIGHT/2;
+        for (int i=0; i<HEIGHT; i++){
+            for (int j=0; j<WIDTH; j++){
+                p.x= i-centro.x;
+                p.y= j-centro.y;
+                if (p.x * p.x + p.y * p.y > r*r){
+                   pInImagen.read((char *)& ImageData,1);
+		   if(contador<(matrix_size/3)){
+		   	ImageData = ImageData * 0.3;
+		   }
+		   if(contador>= (matrix_size/3) && contador<(matrix_size*2/3)){
+		   	ImageData = ImageData * 0.59;
+		   }
+		   if(contador>=(matrix_size*2/3)){
+		   	ImageData = ImageData * 0.11;
+		   }
+		   pOutFile.write((char *) &ImageData, 1); 
+		   contador++;
+		   if(contador== matrix_size/3 || contador == (matrix_size*2/3) ){
+			i=0; 
+			j=-1; //-1 Porque se va a actualizar en la siguiente iteración (no se puede poner arriba porque se saldria 					del bucle antes de reinciar i y j
+		   }
+                }
+		else{
+			pInImagen.read((char *)& ImageData,1);
+			pOutFile.write((char *) &ImageData, 1);
+			contador++;
+		}
+            }
+        }
+	pInImagen.close();
+	pOutFile.close();
+    } 
+	else{
+		cerr<<"Error al abrir el fichero "<<ImageFile<<endl;  
+	}
+}
 	
 	
 	

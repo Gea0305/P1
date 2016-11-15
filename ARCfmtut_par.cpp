@@ -13,7 +13,7 @@ using namespace std;
 void leer_dimensiones();
 void aplicar_mascara();
 void MaxMin();
-void rotacion(const char* , const char* , int );	
+void rotacion();	
 	
 	int HEIGHT;
 	int WIDTH;
@@ -29,83 +29,135 @@ int main(int argc, char ** argv){
   cout<<"Hola"<<endl;
   
 
-/*
+   int cont=1;
+   int num_funcion=-1;
+   int num_histograma=-1;
+   double num_decimal=-1;
+   string in_file="";
+   string out_file="";
+   string path_mascara="";
 
-	if(argc > 9){
- 		cerr << "Numero de argumentos demasiado grande";
-  		return 1;
-  	} 
 
-  		if( strcmp(argv[1],"-u") ){
-		cerr << "Arguementos no validos: falta el argumento -u"<<endl;
- 		return 1;
-	}	
-		
-		if( strcmp(argv[3],"-i") ){
-		cerr << "Arguementos no validos: falta el argumento -i"<<endl;
- 		return 1;
-	}
-	if(strcmp(argv[5],"-o")){
-		cerr << "Arguementos no validos: falta el argumento -o"<<endl;
- 		return 1;
-	} 
-	  
+    
+    while ((cont < argc) && (argv[cont][0]=='-')) {
+        string sw = argv[cont];
+        if (sw=="-u") {
+            cont++;
+            num_funcion = atoi(argv[cont]);
+            	if(num_funcion<0 || num_funcion> 4){
+            		cerr<<"Numero de funcion no valido"<<endl;
+            		return 1;
+            	}
+        }
+        else if (sw=="-i") {
+            cont++;
+            in_file = argv[cont];
+        }
+        else if (sw=="-o") {
+            cont++;
+            out_file = argv[cont];
+        }
+        else if (sw=="-t") {
+            cont++;
+            num_histograma = atoi(argv[cont]);;
+            	if(num_histograma<=0){
+            		cerr<<"El numero de histrogramas debe ser mayor que 0"<<endl;
+            		return 1;
+
+            	}
+        }
+        else if (sw=="-f") {
+            cont++;
+            path_mascara = argv[cont];
+        }
+        else if (sw=="-a") {
+            cont++;
+            num_decimal = atof(argv[cont]);
+        }
+        else if (sw=="-r") {
+            cont++;
+            num_decimal = atof(argv[cont]);
+            	if(num_decimal<0){
+            		cerr<<"El numero del radio no es valido"<<endl;
+            		return 1;
+            	}
+        }
+        else {
+            cerr << "Comando no valido: " 
+                 << argv[cont] << endl;
+                 return 1;
+        }
+        cont++;
+    }
+
+    //COmrpobaciones que son comunes para todas las funciones
+    if(in_file == ""){
+    				cerr<<"Falta introducir -i input_file"<<endl;
+    				return 1;
+    				}
+	if(out_file == ""){
+    				cerr<<"Falta introducir -o output_file"<<endl;
+    				return 1;
+    				}
+
+
+
+    //Seleccion del numero de funcion
+    switch(num_funcion){
+    	case(0):	
+    				if(num_histograma<0){
+    				cerr<<"Flata introducir -t numero_histograma"<<endl;
+    				return 1;
+    				}
+    				if(argc!=9){
+    				cerr <<"Numero de argumentos no valido"<<endl;
+    				return 1;
+    				}
+
+    				cout<<"Funcion histograma blanco y negro"<<endl;
+    				break;
+		case(1):	cout<<"Funcion maximos y minimos"<<endl;
+					MaxMin();
+					break;
+		case(2):	if(path_mascara==""){
+					cerr<<"Falta introducir -f path_mascara"<<endl;
+					return 1;
+					}
+					if(argc!=9){
+    				cerr <<"Numero de argumentos no valido"<<endl;
+    				return 1;
+    				}
+					cout<<"Funcion mascara"<<endl;
+					aplicar_mascara();
+					break;
+		case(3):	if(num_decimal<0){
+					cerr<<"Falta introducir -a angulo_rotar"<<endl;
+					return 1;
+					}
+					if(argc!=9){
+    				cerr <<"Numero de argumentos no valido"<<endl;
+    				return 1;
+    				}
+					cout<<"Rotacion de la imagen"<<endl;
+					rotacion();
+					break;
+		case(4):	if(num_decimal<0){
+					cerr<<"Falta introducir -r radio_circulo"<<endl;
+					return 1;
+					}
+					if(argc!=9){
+    				cerr <<"Numero de argumentos no valido"<<endl;
+    				return 1;
+    				}
+					cout<<"Funcion de filtro blanco y negro selectivo"<<endl;
+					break;
+		default:	cerr<<"Falta introducir -u numero_funcion"<<endl;
+    }
+
+
 
 	
-	if( strcmp(argv[2],"0")){
-		 if(strcmp(argv[7],"-t")){
-			cerr << "Histrograma: Se necesitan los argumentos -t <numero entero>"<<endl;
-  			return 0;
-			} else {
-				cout<<"Llamamos a la funcion histograma con los argumentos"<<argv[4]<<" "<<argv[6]<<" "<<argv[8]<<endl;
-				//histograma(argv[4],argv[6],argv[8]);
-		      	}
-		
-	}	else
-	if( strcmp(argv[2],"1")) { 
-		 if (argc > 7){
-			cerr<<"Maximos y minimos: Demasiados argumentos"<<endl;
-			return 1;
-			}
-			cout<<"Llamamos a la funcion MAXMIN con los argumentos"<<argv[4]<<" "<<argv[6]<<endl;
-			//MaxMin(argv[4],argv[6]);
-		
-			}else
-	if(strcmp(argv[2],"2")){
-				 if(strcmp(argv[7],"-f")){
-				cerr << "Aplicar mascara: Se necesitan los argumentos -f <ruta>"<<endl;
-  				return 1;
-			} else{
-				cout<<"Llamamos a la funcion aplicar_mascara con los argumentos"<<argv[4]<<" "<<argv[6]<<" "<<argv[8]<<endl;
-				//aplicar_mascara(argv[4],argv[6],argv[8]);
-		      	}
-			
-			}else
-				if(strcmp(argv[2],"3")){
-				 if(strcmp(argv[2],"-a")){
-				cerr << "Rotacion: Se necesita los argumentos -a <numero decimal>"<<endl;
-  				return 0;
-			} else{
-				cout<<"Llamamos a la funcion rotacion con los argumentos"<<argv[4]<<" "<<argv[6]<<" "<<argv[8]<<endl;
-			//	rotacion(argv[4],argv[6],argv[8]);
-		     	}
-				}else
-			if(strcmp(argv[2],"4")){
-				if(strcmp(argv[7],"-r")){
-				cerr << "Filtro blanco y negro: Se necesitan los argumentos -r <numero decimal positivo>"<<endl;
-  				return 1;
-			} else{
-				
-				if( stoi(argv[8]) <0 ){
-					cerr<<"El radio del circulo a filtrar debe ser positivo"<<endl;
-					return 1;
-				}
-				cout<<"Llamamos a la funcion filtro con los argumentos"<<argv[4]<<" "<<argv[6]<<" "<<argv[8]<<endl;
-				//filtro(argv[4],argv[6],argv[8]);
-		    	}
-		}else cerr << "Argumentos introducidos no validos"<<endl;
-		
-	*/
+	
   
 	return 0;
 }
@@ -219,40 +271,86 @@ void aplicar_mascara(){
 	
 }
 
-void rotacion(const char* img, const char* exit, int gr){
+void rotacion(/*const char* img, const char* exit, int gr*/){
 	ifstream pInFile;
 	pInFile.open("imagen.img", ios::in | ios::binary);
 		if (pInFile.is_open()) {
-			unsigned char imgdata; 
-			pInFile.seekg(8); 
+			
+			
+			//Creamos el ofstream, para escribir en el fichero de salida
+         	ofstream pOutFile;
+			pOutFile.open("rot_out.img", ios::out | ios::trunc | ios::binary);	
+			
+         	if(!pInFile) { 
+    		cout << "Cannot open file"<<endl;  
+   			} 
+   			
+   			
+		 unsigned char imgdata; 
+		
+		//Escribimos en el rot_out, los primeros 8 bytes de su tamaÃ±o, que sera el tamaÃ±o de la imagen de entrada
+	   	unsigned char heightData[4]; 
+		unsigned char widthData[4]; 
+	   pInFile.seekg(0, ios::beg); //pos filter at beginning of image file.
+	 
+		 //Leo los 4 primeros bytes
+			pInFile.read( (char *)& heightData, 4 ); //Lees la altura
+		 	pInFile.read( (char *)& widthData, 4); 
+		 	
+		 	//Escribo en el fichero de salida, los tamaÃ±os de la matriz
+		 		pOutFile.write( (char *)& heightData, 4);
+		 		pOutFile.write( (char *)& widthData, 4);
+		 		
+		 		
+		 		
+		 		
 			int xc , yc , xf, yf, xi,yi;
 	
-			int fin[WIDTH][HEIGHT];
+			 char fin[WIDTH][HEIGHT];
+			
 			 //Con el ceil, redondeamos al de arriba
-			xc=ceil(WIDTH/2);
-			yc=ceil(HEIGHT/2);
+			xc=trunc(WIDTH/2);
+			yc=trunc(HEIGHT/2);
+		
+			
+			
+			cout<<"El centro es xc:"<<xc<<" yc:"<<yc<<endl;
 			
 			for (int j=0; j<HEIGHT; j++){
 				for (int i=0; i<WIDTH; i++){
 					xi=i-xc;
 					yi=j-yc;
-					xf=(cos(gr/180*PI)*xi-sin(gr/180*PI) * yi);
-					yf=(sin(gr/180*PI)*xi-cos(gr/180*PI) * yi);
+					
+					
+					xf= ceil( cos( (90*PI)/180 )*xi   - sin( (90*PI)/180)*yi +xc);
+					
+					
+					yf= ceil( sin( (90*PI)/180 )*xi   + cos( (90*PI)/180)*yi +yc);
+					
+					
+					
 					pInFile.read( (char *)& imgdata,1);
-					if(yf<=HEIGHT && yf>=0 && xf<=WIDTH && xf>=0){
-
+					
+					if(yf<HEIGHT && yf>=0 && xf<WIDTH && xf>=0){
+					
 						fin[xf][yf]= imgdata;
-						/*if (fin[i][j] == NULL){
-							fin[i][j]= 0;
-						}*/
+					
 					}
 				}
 			}
+			
+			
+		for (int j=0; j<HEIGHT; j++){
+				for (int i=0; i<WIDTH; i++){	
+				
+				pOutFile.write( (char *)& fin[i][j], 1);
+			
+		}}
+		
 		}
-
 }	
 
-void MaxMin(const char* img, const char* exit){
+void MaxMin(/*const char* img, const char* exit*/){
 	
 		ifstream pInFile;
 	pInFile.open("imagen.img", ios::in | ios::binary);
@@ -303,32 +401,23 @@ void MaxMin(const char* img, const char* exit){
 		colores[5]=blue;
 		}
 		}
-		ofstream pOutFile ;
+		ofstream pOutFile;
     	pOutFile.open("maxmin.txt", ios::out | ios::trunc | ios::binary);
     	
     	if(!pOutFile) { 
     		cerr << "Cannot open file "<<endl; 
    			
    			} 
-    	cout<<"Hasta aqui todo bien, voy a escribir en el archivo"<<endl;
-    	cout<< colores[0]<<endl;
-    	cout<< colores[1]<<endl;
-    	cout<< colores[2]<<endl;
-    	cout<< colores[3]<<endl;
-    	cout<< colores[4]<<endl;
-    	cout<< colores[5]<<endl;
-    	
-    	
-    	
-    	
 		for (int i=0; i<6; i++){
-			//pOutFile.write("<", 1);
+			
 		
 			
-   			pOutFile.write( (char *)&colores[i], sizeof colores[i]); //write header data onto outpu
-			//pOutFile.write(">", 1);
+   			pOutFile<<colores[i]; 
+   			if(i<5){
+   			pOutFile<<",";
+			}
 		} 
-   		 pOutFile.close(); //close stream
+   		 pOutFile.close(); 
 	 }else{
 	 	cerr<<"Error opening imagen.img"<<endl;
 	 }
@@ -337,3 +426,8 @@ void MaxMin(const char* img, const char* exit){
 
 
 	
+	
+	
+
+
+

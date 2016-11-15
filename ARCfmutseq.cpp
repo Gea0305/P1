@@ -6,8 +6,8 @@
 #include <algorithm>
 #include <cstring>
 #include <math.h>
-//comparar ficheros comando linux: diff (ruta fichero) (ruta fichero) 
-#define PI 3.14159265
+
+
 using namespace std;
 //Prototipado de las funciones
 void leer_dimensiones();
@@ -165,27 +165,27 @@ int main(int argc, char ** argv){
 
 void leer_dimensiones(/*const char* fileName*/){
 	
-	ifstream pInFile;
-	pInFile.open("imagen.img", ios::in | ios::binary); // open fileName and read as binary.
+	ifstream InFile;
+	InFile.open("imagen.img", ios::in | ios::binary); // open fileName and read as binary.
     
-    if (pInFile.is_open()) {
+    if (InFile.is_open()) {
         
     //Donde almacenamos los datos tienen que ser unsigned char, ya que van desde 0 a 255    
 	unsigned char heightData[4]; 
 	unsigned char widthData[4]; 
 
 	 
-	 pInFile.seekg(0, ios::beg); //pos filter at beginning of image file.
+	 InFile.seekg(0, ios::beg); //pos filter at beginning of image file.
 	 
 	 //Leo los 4 primeros bytes
-	pInFile.read( (char *)& heightData, 4 ); //Lees la altura
+	InFile.read( (char *)& heightData, 4 ); //Lees la altura
 	
 		//Lee 2000 0000, como esta en LEndian seria 0000 0020, que equivale a 32.En las posiciones el 0 seria el 3, el 1 el 2 y el 3 el 0
 		//Lo cambio a BIGENDIAN
    	    HEIGHT += (int)heightData[0] | ((int)heightData[1]<<8) | ((int)heightData[2]<<16) | ((int)heightData[3]<<24);
 	 	cout<<"HEIGHT:  "<<HEIGHT<<endl;
 	
-		pInFile.read( (char *)& widthData, 4); 
+		InFile.read( (char *)& widthData, 4); 
 		WIDTH += (int)widthData[0] | ((int)widthData[1]<<8) | ((int)widthData[2]<<16) | ((int)widthData[3]<<24);
 	  	cout <<"WIDTH: "<<WIDTH<<endl;
 
@@ -201,13 +201,13 @@ void leer_dimensiones(/*const char* fileName*/){
 void aplicar_mascara(){
 		
 	
-			ifstream pInImagen;
-			pInImagen.open("imagen.img", ios::in | ios::binary); // open fileName and read as binary.
-    		ifstream pInMascara;
-    		pInMascara.open("mask.img", ios::in | ios::binary); 
+			ifstream InImagen;
+			InImagen.open("imagen.img", ios::in | ios::binary); // open fileName and read as binary.
+    		ifstream InMascara;
+    		InMascara.open("mask.img", ios::in | ios::binary); 
     		
-   		 if (pInImagen.is_open()) {
-         if (pInMascara.is_open()) {
+   		 if (InImagen.is_open()) {
+         if (InMascara.is_open()) {
          	
          	//Creamos el ofstream, para escribir en el fichero de salida
          	ofstream pOutFile;
@@ -219,11 +219,11 @@ void aplicar_mascara(){
      //Escribimos en el mask_out, los primeros 8 bytes de su tamaÃ±o, que sera el tamaÃ±o de la imagen de entrada
 	   	unsigned char heightData[4]; 
 		unsigned char widthData[4]; 
-	   pInImagen.seekg(0, ios::beg); //pos filter at beginning of image file.
+	   InImagen.seekg(0, ios::beg); //pos filter at beginning of image file.
 	 
 		 //Leo los 4 primeros bytes
-			pInImagen.read( (char *)& heightData, 4 ); //Lees la altura
-		 	pInImagen.read( (char *)& widthData, 4); 
+			InImagen.read( (char *)& heightData, 4 ); //Lees la altura
+		 	InImagen.read( (char *)& widthData, 4); 
 		 	
 		 	//Escribo en el fichero de salida, los tamaÃ±os de la matriz
 		 		pOutFile.write( (char *)& heightData, 4);
@@ -236,16 +236,16 @@ void aplicar_mascara(){
 	int contador=0;
 	
 	
-	 //Ponemos el puntero para que empiece a leer en el byte 9, ya que los 8 primeros son del tamaÃ±o de la matriz
-	 pInMascara.seekg(8); 
+	 //Ponemos el puntero para que emIece a leer en el byte 9, ya que los 8 primeros son del tamaÃ±o de la matriz
+	 InMascara.seekg(8); 
 	
 	//Ponemos contador<matrix_size, ya que con !ImageData.eof, debe ser que lee tambien el /0 del final, y escribe una posicion mas de la debida
 	while(contador<matrix_size){
-	//	while(!pInMascara.eof()){
+	//	while(!InMascara.eof()){
 	//	}
 	
-	pInImagen.read( (char *)& ImageData, 1 ); 
-	pInMascara.read( (char *)& MaskData, 1 );	
+	InImagen.read( (char *)& ImageData, 1 ); 
+	InMascara.read( (char *)& MaskData, 1 );	
 	
 	
 	ImageData= ImageData*MaskData;
@@ -258,9 +258,9 @@ void aplicar_mascara(){
 	
 	}
 	
-		pInImagen.close();
+		InImagen.close();
 		pOutFile.close();
-		pInMascara.close();
+		InMascara.close();
 		
 		
 			
@@ -273,16 +273,16 @@ void aplicar_mascara(){
 }
 
 void rotacion(/*const char* img, const char* exit, int gr*/){
-	ifstream pInFile;
-	pInFile.open("imagen.img", ios::in | ios::binary);
-		if (pInFile.is_open()) {
+	ifstream InFile;
+	InFile.open("imagen.img", ios::in | ios::binary);
+		if (InFile.is_open()) {
 			
 			
 			//Creamos el ofstream, para escribir en el fichero de salida
          	ofstream pOutFile;
 			pOutFile.open("rot_out.img", ios::out | ios::trunc | ios::binary);	
 			
-         	if(!pInFile) { 
+         	if(!InFile) { 
     		cout << "Cannot open file"<<endl;  
    			} 
    			
@@ -292,11 +292,11 @@ void rotacion(/*const char* img, const char* exit, int gr*/){
 		//Escribimos en el rot_out, los primeros 8 bytes de su tamaÃ±o, que sera el tamaÃ±o de la imagen de entrada
 	   	unsigned char heightData[4]; 
 		unsigned char widthData[4]; 
-	   pInFile.seekg(0, ios::beg); //pos filter at beginning of image file.
+	   InFile.seekg(0, ios::beg); //pos filter at beginning of image file.
 	 
 		 //Leo los 4 primeros bytes
-			pInFile.read( (char *)& heightData, 4 ); //Lees la altura
-		 	pInFile.read( (char *)& widthData, 4); 
+			InFile.read( (char *)& heightData, 4 ); //Lees la altura
+		 	InFile.read( (char *)& widthData, 4); 
 		 	
 		 	//Escribo en el fichero de salida, los tamaÃ±os de la matriz
 		 		pOutFile.write( (char *)& heightData, 4);
@@ -305,15 +305,15 @@ void rotacion(/*const char* img, const char* exit, int gr*/){
 		 		
 		 		
 		 		
-			int xc , yc , xf, yf, xi,yi;
-
+			double xc , yc , xi,yi;
+			int xf,yf;
 	
 			 unsigned char fin[WIDTH][HEIGHT]; //= {0};
 			 memset(fin, 0, WIDTH*HEIGHT);
 			
 			 //Calculamos el centro de la imagen
-			xc=trunc(WIDTH/2);
-			yc=trunc(HEIGHT/2);
+			xc=WIDTH/2;
+			yc=HEIGHT/2;
 		
 			
 			
@@ -328,14 +328,14 @@ void rotacion(/*const char* img, const char* exit, int gr*/){
 					yi=j-yc;
 					
 					
-					xf= ceil( cos((90*PI)/180)*xi - sin((90*PI)/180)*yi +xc);
+					xf= ceil( cos((90*M_PI)/180)*xi - sin((90*M_PI)/180)*yi +xc);
 					
 					
-					yf= ceil( sin((90*PI)/180)*xi + cos((90*PI)/180)*yi +yc);
+					yf= ceil( sin((90*M_PI)/180)*xi + cos((90*M_PI)/180)*yi +yc);
 					
 					
 					
-					pInFile.read( (char *)& imgdata,1);
+					InFile.read( (char *)& imgdata,1);
 					
 					if(yf<HEIGHT && yf>=0 && xf<WIDTH && xf>=0){
 					
@@ -367,9 +367,9 @@ void rotacion(/*const char* img, const char* exit, int gr*/){
 
 void MaxMin(/*const char* img, const char* exit*/){
 	
-		ifstream pInFile;
-	pInFile.open("imagen.img", ios::in | ios::binary);
- 	if (pInFile.is_open()) {
+		ifstream InFile;
+	InFile.open("imagen.img", ios::in | ios::binary);
+ 	if (InFile.is_open()) {
 		//leer_dimenciones(img);
 		unsigned char imgdata; 
 		int colores[]= {0,255,0,255,0,255} ;
@@ -378,11 +378,11 @@ void MaxMin(/*const char* img, const char* exit*/){
 		int green;
 		
 		//No leemos los bytes que indican el tamaÃ±o de la matriz
-		pInFile.seekg(8); 
+		InFile.seekg(8); 
 		
 		for (int i =0; i < (HEIGHT*WIDTH) ; i++){
 			
-		pInFile.read( (char *)& imgdata,1);
+		InFile.read( (char *)& imgdata,1);
 		red=imgdata;
 		if (colores[0] < red){
 			//Hay un nuevo maximo
@@ -395,7 +395,7 @@ void MaxMin(/*const char* img, const char* exit*/){
 		}
 		for (int i =0; i< (HEIGHT*WIDTH); i++){
 			
-		pInFile.read( (char *)& imgdata,1);
+		InFile.read( (char *)& imgdata,1);
 		green=imgdata;
 		
 		if (colores[2] < green){
@@ -407,7 +407,7 @@ void MaxMin(/*const char* img, const char* exit*/){
 		}
 		for (int i =0; i<(HEIGHT*WIDTH); i++){
 			 
-		pInFile.read( (char *)& imgdata,1);
+		InFile.read( (char *)& imgdata,1);
 		blue=imgdata;
 		if (colores[4] < blue){
 		colores[4]=blue;
@@ -424,6 +424,9 @@ void MaxMin(/*const char* img, const char* exit*/){
    			
    			} 
 		for (int i=0; i<6; i++){
+			
+		
+			
    			pOutFile<<colores[i]; 
    			if(i<5){
    			pOutFile<<" ";

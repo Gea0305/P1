@@ -165,6 +165,7 @@ void leer_dimensiones(string fileName){
 		InFile.read( (char *)& widthData, 4); 
 		WIDTH += (int)widthData[0] | ((int)widthData[1]<<8) | ((int)widthData[2]<<16) | ((int)widthData[3]<<24);
 		matrix_size=  (HEIGHT*WIDTH)*3;
+		InFile.close();
 	  	cout<<"Width: "<<WIDTH<<endl;
 	 	cout<<"Height: "<<HEIGHT<<endl;
 		cout<<"Matrix size: "<< matrix_size<<endl;
@@ -185,6 +186,7 @@ void histograma(string ImageFile, string OutputFile, int t){
 		for (i=0; i<(matrix_size+8); ++i){
 			InFile.read((char*)& imgdata[i], 1);
 		}
+		InFile.close();
 		for (i=0; i<(HEIGHT*WIDTH); ++i){ //Bucle para calcular el gris resultante de cada pixel
 			grey=(imgdata[i+8]*0.3+imgdata[HEIGHT*WIDTH+i+8]*0.59+imgdata[2*HEIGHT*WIDTH+i+8]*0.11);
 			for (j=0, found=false; j<t && !found; ++j){ //Bucle para encontrar el tramo adecuado en el histograma
@@ -219,39 +221,30 @@ void aplicar_mascara(string ImageFile, string OutputFile, string MaskFile){
 	InMascara.open(MaskFile, ios::in | ios::binary); 
 	if (InImagen.is_open()) {
         if (InMascara.is_open()) {
+			vector<unsigned char> imgdata(matrix_size+8); //Vector para volcar la matriz recibida
+			for (int i=0; i<(matrix_size+8); ++i){
+				InImagen.read((char*)& imgdata[i], 1);
+			}
+			InImagen.close();
+			vector<unsigned char> mskdata(matrix_size+8); //Vector para volcar la matriz recibida
+			for (int i=0; i<(matrix_size+8); ++i){
+				InMascara.read((char*)& mskdata[i], 1);
+			}
+			InMascara.close();
+			for(int i=8; i<(matrix_size+8), ++i){
+				imgdata[i]*=mskdata[i];
+			}
           	//Creamos el ofstream, para escribir en el fichero de salida
          	ofstream pOutFile;
 			pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);	
-	       	if(!pOutFile) { 
+	       	if(pOutFile.is_open()) {
+	       		for(int i=0; i<(matrix_size+8); ++i){
+	       			pOutFile.write((char*)& imgdata[i], 1);
+	       		}
+				pOutFile.close();
+   			}else{
     			cout << "Error al abrir el fichero "<<OutputFile<<" para escribir"<<endl;  
-   			} 
-     		//Escribimos en el mask_out, los primeros 8 bytes de su tamaÃ±o, que sera el tamaÃ±o de la imagen de entrada
-	   		unsigned char heightData[4]; 
-			unsigned char widthData[4]; 
-	   		InImagen.seekg(0, ios::beg); //pos filter at beginning of image file.
-			//Leo los 4 primeros bytes
-			InImagen.read( (char *)& heightData, 4 ); //Lees la altura
-		 	InImagen.read( (char *)& widthData, 4); 
-		 	//Escribo en el fichero de salida, los tamaÃ±os de la matriz
-		 	pOutFile.write( (char *)& heightData, 4);
-		 	pOutFile.write( (char *)& widthData, 4);
-		    //Donde almacenamos los datos tienen que ser unsigned char, ya que van desde 0 a 255    
-			unsigned char ImageData; 
-			unsigned char MaskData; 
-			int contador=0;
-			//Ponemos el puntero para que emIece a leer en el byte 9, ya que los 8 primeros son del tamaÃ±o de la matriz
-			InMascara.seekg(8); 
-			//Ponemos contador<matrix_size, ya que con !ImageData.eof, debe ser que lee tambien el /0 del final, y escribe una posicion mas de la debida
-			while(contador<matrix_size){
-				InImagen.read( (char *)& ImageData, 1 ); 
-				InMascara.read( (char *)& MaskData, 1 );	
-				ImageData= ImageData*MaskData;
-				pOutFile.write( (char *) &ImageData, 1);
-				contador++;
-			}
-			InImagen.close();
-			pOutFile.close();
-			InMascara.close();
+   			}
 		}else{
 			cerr<<"Error opening "<<MaskFile<<endl;
 		}
@@ -270,7 +263,6 @@ void rotacion(string ImageFile, string OutputFile, double gr){
        	if(!pOutFile) { 
     		cout << "Error al abrir el fichero "<<OutputFile<<" para escribir"<<endl;  
    		} 
-   		cout<<"Escribo la cabecera en el archivo de rotacion"<<endl;
 		unsigned char imgdata; 
 		//Escribimos en el rot_out, los primeros 8 bytes de su tamaÃ±o, que sera el tamaÃ±o de la imagen de entrada
 	   	unsigned char heightData[4]; 
@@ -282,49 +274,40 @@ void rotacion(string ImageFile, string OutputFile, double gr){
 		//Escribo en el fichero de salida, los tamaÃ±os de la matriz
 		pOutFile.write( (char *)& heightData, 4);
 		pOutFile.write( (char *)& widthData, 4);
-		cout<< "He escrito la cabecera y voy con lo siguiente"<<endl;
 		double xc , yc , xi,yi;
 		int xf,yf;
-		vector<unsigned char> fin(WIDTH*HEIGHT, 0); //Vector con los tramos inicializado a 0
+		unsigned char fin[WIDTH][HEIGHT]; //= {0};
+		memset(fin, 0, WIDTH*HEIGHT);
 		//Calculamos el centro de la imagen
-		cout<<"Voy a calcular el centro"<<endl;
 		xc=WIDTH/2;
 		yc=HEIGHT/2;
 		cout<<"El centro es xc:"<<xc<<" yc:"<<yc<<endl;
 		int num_colores= 0;
-		int i,j;
-		int contador=0;
 		while(num_colores<3){
-			for (j=0; j<HEIGHT; j++){
-				for(i=0; i<WIDTH; i++){
-
-					for (; contador<WIDTH*HEIGHT; contador++){
-				
+			for (int j=0; j<HEIGHT; j++){
+				for (int i=0; i<WIDTH; i++){
 					xi=i-xc;
 					yi=j-yc;
 					xf= ceil( cos((gr*M_PI)/180)*xi - sin((gr*M_PI)/180)*yi +xc);
 					yf= ceil( sin((gr*M_PI)/180)*xi + cos((gr*M_PI)/180)*yi +yc);
 					InFile.read( (char *)& imgdata,1);
 					if(yf<HEIGHT && yf>=0 && xf<WIDTH && xf>=0){
-						fin[contador]= imgdata;
+						fin[xf][yf]= imgdata;
 					}
-					
-				}
 				}
 			}
-			
-			
-			for (contador=0; contador<WIDTH*HEIGHT; contador++){
-					
-					pOutFile.write( (char *)& fin[contador], 1);
-				
+			for (int j=0; j<HEIGHT; j++){
+				for (int i=0; i<WIDTH; i++){	
+					pOutFile.write( (char *)& fin[i][j], 1);
+				}
 			}
 			num_colores++;
-			memset(&fin[0], 0, fin.size() * sizeof fin[0]);
+			memset(fin, 0, WIDTH*HEIGHT);
 		}
+		InFile.close();
+		pOutFile.close();
 	}else{
 		cerr<<"Error al abrir "<<ImageFile<<endl;
-		return;	
 	} 
 }
 
@@ -383,6 +366,7 @@ void MaxMin(string ImageFile, string OutputFile){
    				pOutFile<<" ";
 			}
 		}
+		InFile.close();
    		pOutFile.close(); 
 	}else{
 	 	cerr<<"Error al abrir el fichero "<<ImageFile<<endl;
@@ -396,7 +380,7 @@ void aplicar_filtro(string ImageFile, string OutputFile, double r){
 		ofstream pOutFile;
 		pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
 		if(!pOutFile) {
-			cout << "Cannot open file"<<endl;
+			cout << "Cannot open file to write"<<endl;
 		}
 		//Escribimos en el circle_out, los primeros 8 bytes de su tamaÃ±o, que sera el tamaÃ±o de la imagen de entrada
 		unsigned char heightData[4];

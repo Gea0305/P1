@@ -231,7 +231,7 @@ void aplicar_mascara(string ImageFile, string OutputFile, string MaskFile){
 				InMascara.read((char*)& mskdata[i], 1);
 			}
 			InMascara.close();
-			for(int i=8; i<(matrix_size+8), ++i){
+			for(int i=8; i<(matrix_size+8); ++i){
 				imgdata[i]*=mskdata[i];
 			}
           	//Creamos el ofstream, para escribir en el fichero de salida

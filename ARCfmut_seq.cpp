@@ -17,9 +17,9 @@ void aplicar_filtro(string, string, double);
 int HEIGHT;
 int WIDTH;
 int matrix_size; //TamaÃ±o de la matriz sin contar con los bytes que indican el tamaÃ±o
+
 //argc= numero de argumentos especificados por linea de comandos
 //argv[i] contiene el contenido del argumento i
-
 int main(int argc, char ** argv){
 	cout<<"Hola"<<endl;
 	int cont=1;
@@ -162,11 +162,11 @@ void leer_dimensiones(string fileName){
 		//Lee 2000 0000, como esta en LEndian seria 0000 0020, que equivale a 32.En las posiciones el 0 seria el 3, el 1 el 2 y el 3 el 0
 		//Lo cambio a BIGENDIAN
    	    HEIGHT += (int)heightData[0] | ((int)heightData[1]<<8) | ((int)heightData[2]<<16) | ((int)heightData[3]<<24);
-	 	cout<<"HEIGHT:  "<<HEIGHT<<endl;
 		InFile.read( (char *)& widthData, 4); 
 		WIDTH += (int)widthData[0] | ((int)widthData[1]<<8) | ((int)widthData[2]<<16) | ((int)widthData[3]<<24);
-	  	cout <<"WIDTH: "<<WIDTH<<endl;
 		matrix_size=  (HEIGHT*WIDTH)*3;
+	  	cout<<"Width: "<<WIDTH<<endl;
+	 	cout<<"Height: "<<HEIGHT<<endl;
 		cout<<"Matrix size: "<< matrix_size<<endl;
 	}else{
 		cerr <<"Error opening file";
@@ -178,33 +178,35 @@ void histograma(string ImageFile, string OutputFile, int t){
 	InFile.open(ImageFile, ios::in | ios::binary);
 	if (InFile.is_open()){
 		unsigned char imgdata;
-		int red;
-		int green;
-		double grey;
-		vector<int> histograma(t, 0); //Vector con los tramos inicializado a 0
-		for (int i=0; i<(HEIGHT*WIDTH); ++i){ //Bucle para coger los tres colores de cada pixel
+		double red, green, grey, i, j;
+		bool found;
+		vector<int> histogram(t, 0); //Vector con los tramos inicializado a 0
+		for (i=0; i<(HEIGHT*WIDTH); ++i){ //Bucle para coger los tres colores de cada pixel
 			//Pasamos hasta el byte rojo correspondiente al pixel actual
 			InFile.seekg(8+i, ios::beg);
 			InFile.read((char*)& imgdata,1);
 			red=imgdata;
-			InFile.seekg(HEIGHT*WIDTH-1); //Avanzamos a su correspondiente valor en los verdes
+			InFile.seekg(HEIGHT*WIDTH-1, ios::cur); //Avanzamos a su correspondiente valor en los verdes
 			InFile.read((char*)& imgdata,1);
 			green=imgdata;
-			InFile.seekg(HEIGHT*WIDTH-1); //Avanzamos a su correspondiente valor en los azules
+			InFile.seekg(HEIGHT*WIDTH-1, ios::cur); //Avanzamos a su correspondiente valor en los azules
 			InFile.read((char*)& imgdata,1);
 			grey=(red*0.3+green*0.59+imgdata*0.11);
-			for (double j=(255/t), bool found=false; j<=255 && !found; j+=j){ //Bucle para encontrar el tramo adecuado en el histograma
-				if (grey<=j){ //Si encontramos su tramo no volvemos a ejecutar el for
-					histograma[j*t/255-1]+=1;
-					found=true;
+			for (j=0, found=false; j<t && !found; ++j){ //Bucle para encontrar el tramo adecuado en el histograma
+				if (grey<((j+1)*(255.0/t))){ //Comprobamos los tramos desde el primero hasta que entre en uno
+					histogram[j]+=1;
+					found=true; //Cuando encontramos su tramo no volvemos a ejecutar el for
 				}
 			}
 		}
 		ofstream OutFile;
 		OutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
 		if (OutFile.is_open()){ 
-			for (int i=0; i<t; ++i){
-				OutFile<<histograma[i];
+			for (i=0; i<t; ++i){
+				OutFile<<histogram[i];
+   				if(i<t-1){
+   					OutFile<<" ";
+				}
 			}
 			OutFile.close();
 		}else{
@@ -463,6 +465,4 @@ void aplicar_filtro(string ImageFile, string OutputFile, double r){
 	else{
 		cerr<<"Error al abrir el fichero "<<ImageFile<<endl;  
 	}
-	pInImagen.close();
-	pOutFile.close();
 }

@@ -217,7 +217,7 @@ void histograma(string ImageFile, string OutputFile, int t){
 	}
 }
 
-void aplicar_mascara(string ImageFile, string MaskFile, string OutputFile){
+void aplicar_mascara(string ImageFile, string OutputFile, string MaskFile){
 	ifstream InImagen;
 	InImagen.open(ImageFile, ios::in | ios::binary); // open fileName and read as binary.
 	ifstream InMascara;
@@ -275,6 +275,7 @@ void rotacion(string ImageFile, string OutputFile, double gr){
        	if(!pOutFile) { 
     		cout << "Error al abrir el fichero "<<OutputFile<<" para escribir"<<endl;  
    		} 
+   		cout<<"Escribo la cabecera en el archivo de rotacion"<<endl;
 		unsigned char imgdata; 
 		//Escribimos en el rot_out, los primeros 8 bytes de su tamaÃ±o, que sera el tamaÃ±o de la imagen de entrada
 	   	unsigned char heightData[4]; 
@@ -286,35 +287,45 @@ void rotacion(string ImageFile, string OutputFile, double gr){
 		//Escribo en el fichero de salida, los tamaÃ±os de la matriz
 		pOutFile.write( (char *)& heightData, 4);
 		pOutFile.write( (char *)& widthData, 4);
+		cout<< "He escrito la cabecera y voy con lo siguiente"<<endl;
 		double xc , yc , xi,yi;
 		int xf,yf;
-		unsigned char fin[WIDTH][HEIGHT]; //= {0};
-		memset(fin, 0, WIDTH*HEIGHT);
+		vector<unsigned char> fin(WIDTH*HEIGHT, 0); //Vector con los tramos inicializado a 0
 		//Calculamos el centro de la imagen
+		cout<<"Voy a calcular el centro"<<endl;
 		xc=WIDTH/2;
 		yc=HEIGHT/2;
 		cout<<"El centro es xc:"<<xc<<" yc:"<<yc<<endl;
 		int num_colores= 0;
+		int i,j;
+		int contador=0;
 		while(num_colores<3){
-			for (int j=0; j<HEIGHT; j++){
-				for (int i=0; i<WIDTH; i++){
+			for (j=0; j<HEIGHT; j++){
+				for(i=0; i<WIDTH; i++){
+
+					for (; contador<WIDTH*HEIGHT; contador++){
+				
 					xi=i-xc;
 					yi=j-yc;
 					xf= ceil( cos((gr*M_PI)/180)*xi - sin((gr*M_PI)/180)*yi +xc);
 					yf= ceil( sin((gr*M_PI)/180)*xi + cos((gr*M_PI)/180)*yi +yc);
 					InFile.read( (char *)& imgdata,1);
 					if(yf<HEIGHT && yf>=0 && xf<WIDTH && xf>=0){
-						fin[xf][yf]= imgdata;
+						fin[contador]= imgdata;
 					}
+					
+				}
 				}
 			}
-			for (int j=0; j<HEIGHT; j++){
-				for (int i=0; i<WIDTH; i++){	
-					pOutFile.write( (char *)& fin[i][j], 1);
-				}
+			
+			
+			for (contador=0; contador<WIDTH*HEIGHT; contador++){
+					
+					pOutFile.write( (char *)& fin[contador], 1);
+				
 			}
 			num_colores++;
-			memset(fin, 0, WIDTH*HEIGHT);
+			memset(&fin[0], 0, fin.size() * sizeof fin[0]);
 		}
 	}else{
 		cerr<<"Error al abrir "<<ImageFile<<endl;

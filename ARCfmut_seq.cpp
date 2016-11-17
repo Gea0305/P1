@@ -177,23 +177,18 @@ void histograma(string ImageFile, string OutputFile, int t){
 	ifstream InFile;
 	InFile.open(ImageFile, ios::in | ios::binary);
 	if (InFile.is_open()){
-		unsigned char imgdata;
-		double red, green, grey, i, j;
+		int i, j;
 		bool found;
+		double grey;
 		vector<int> histogram(t, 0); //Vector con los tramos inicializado a 0
-		for (i=0; i<(HEIGHT*WIDTH); ++i){ //Bucle para coger los tres colores de cada pixel
-			//Pasamos hasta el byte rojo correspondiente al pixel actual
-			InFile.seekg(8+i, ios::beg);
-			InFile.read((char*)& imgdata,1);
-			red=imgdata;
-			InFile.seekg(HEIGHT*WIDTH-1, ios::cur); //Avanzamos a su correspondiente valor en los verdes
-			InFile.read((char*)& imgdata,1);
-			green=imgdata;
-			InFile.seekg(HEIGHT*WIDTH-1, ios::cur); //Avanzamos a su correspondiente valor en los azules
-			InFile.read((char*)& imgdata,1);
-			grey=(red*0.3+green*0.59+imgdata*0.11);
+		vector<unsigned char> imgdata(matrix_size+8); //Vector para volcar la matriz recibida
+		for (i=0; i<(matrix_size+8); ++i){
+			InFile.read((char*)& imgdata[i], 1);
+		}
+		for (i=0; i<(HEIGHT*WIDTH); ++i){ //Bucle para calcular el gris resultante de cada pixel
+			grey=(imgdata[i+8]*0.3+imgdata[HEIGHT*WIDTH+i+8]*0.59+imgdata[2*HEIGHT*WIDTH+i+8]*0.11);
 			for (j=0, found=false; j<t && !found; ++j){ //Bucle para encontrar el tramo adecuado en el histograma
-				if (grey<((j+1)*(255.0/t))){ //Comprobamos los tramos desde el primero hasta que entre en uno
+				if (grey<((j+1)*(255.0/t))){ //Comprobamos desde el primer tramo hasta que entre en uno
 					histogram[j]+=1;
 					found=true; //Cuando encontramos su tramo no volvemos a ejecutar el for
 				}

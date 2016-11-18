@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cstring>
 #include <math.h>
+#include <omp.h>
 using namespace std;
 //Prototipado de las funciones
 void histograma(string, string, int);

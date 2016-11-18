@@ -41,15 +41,15 @@ int main(int argc, char ** argv){
             }
         }
         else if (sw=="-i") {
-            cont++;
+            ++cont;
             in_file = argv[cont];
         }
         else if (sw=="-o") {
-            cont++;
+            ++cont;
             out_file = argv[cont];
         }
         else if (sw=="-t") {
-            cont++;
+            ++cont;
             num_histograma = atoi(argv[cont]);;
             if(num_histograma<=0){
             	cerr<<"El numero de histrogramas debe ser mayor que 0"<<endl;
@@ -57,15 +57,15 @@ int main(int argc, char ** argv){
             }
         }
         else if (sw=="-f") {
-            cont++;
+            ++cont;
             path_mascara = argv[cont];
         }
         else if (sw=="-a") {
-            cont++;
+            ++cont;
             num_angulo = atof(argv[cont]);
         }
         else if (sw=="-r") {
-            cont++;
+            ++cont;
             num_radio = atof(argv[cont]);
            	if(num_radio<0){
            		cerr<<"El numero del radio no es valido"<<endl;
@@ -77,7 +77,7 @@ int main(int argc, char ** argv){
             << argv[cont] << endl;
             return 1;
         }
-        cont++;
+        ++cont;
     }
     //COmrpobaciones que son comunes para todas las funciones
     if(in_file == ""){
@@ -284,8 +284,8 @@ void rotacion(string ImageFile, string OutputFile, double gr){
 		int num_colores= 0;
 		int contador=0;
 		while(num_colores<3){
-			for (int j=0; j<HEIGHT; j++){
-				for(int i=0; i<WIDTH; i++){
+			for (int j=0; j<HEIGHT; ++j){
+				for(int i=0; i<WIDTH; ++i){
 					
 					xi=i-xc;
 					yi=j-yc;
@@ -296,14 +296,14 @@ void rotacion(string ImageFile, string OutputFile, double gr){
 						fin[yf*WIDTH + xf]= imgdata[contador];
 						
 					}
-				contador++;	
+				++contador;	
 				}
 			}
 			
-				for (int i=0; i<WIDTH*HEIGHT; i++){
+				for (int i=0; i<WIDTH*HEIGHT; ++i){
 					pOutFile.write( (char *)& fin[i], 1);
 					}
-			num_colores++;
+			++num_colores;
 			memset(&fin[0], 0, WIDTH*HEIGHT);
 		}
 	}else{
@@ -325,7 +325,7 @@ void MaxMin(string ImageFile, string OutputFile){
 			InFile.read((char*)& imgdata[i], 1);
 		}
 		
-		for (int i =0; i < (HEIGHT*WIDTH) ; i++){
+		for (int i =0; i < (HEIGHT*WIDTH) ; ++i){
 			//Hay un nuevo maximo
 			if (colores[0] < imgdata[i]){
 				colores[0]=imgdata[i];
@@ -335,7 +335,7 @@ void MaxMin(string ImageFile, string OutputFile){
 				colores[1]=imgdata[i];
 			}
 		}
-		for (int i =HEIGHT*WIDTH; i< (HEIGHT*WIDTH); i++){
+		for (int i =HEIGHT*WIDTH; i< (HEIGHT*WIDTH); ++i){
 			if (colores[2] < imgdata[i]){
 				colores[2]=imgdata[i];
 			}
@@ -343,7 +343,7 @@ void MaxMin(string ImageFile, string OutputFile){
 				colores[3]=imgdata[i];
 			}
 		}
-		for (int i =HEIGHT*WIDTH*2; i<(HEIGHT*WIDTH); i++){
+		for (int i =HEIGHT*WIDTH*2; i<(HEIGHT*WIDTH); ++i){
 			if (colores[4] < imgdata[i]){
 				colores[4]=imgdata[i];
 			}
@@ -356,7 +356,7 @@ void MaxMin(string ImageFile, string OutputFile){
     	if(!pOutFile) { 
     		cerr << "No se puede abrir el fichero "<<OutputFile<<"Para escribir"<<endl; 
    		} 
-		for (int i=0; i<6; i++){
+		for (int i=0; i<6; ++i){
    			pOutFile<<colores[i]; 
    			if(i<5){
    				pOutFile<<" ";
@@ -387,8 +387,8 @@ void aplicar_filtro(string ImageFile, string OutputFile, double r){
 		centro.x=WIDTH/2;
 		centro.y=HEIGHT/2;
 		//Para el color rojo
-		for(int j =0; j<HEIGHT; j++){
-			for(int i=0; i<WIDTH; i++){
+		for(int j =0; j<HEIGHT; ++j){
+			for(int i=0; i<WIDTH; ++i){
 				p.x= i-centro.x;
 				p.y= j-centro.y;
 				//Si esta fuera del radio, lo cambio de color
@@ -399,27 +399,27 @@ void aplicar_filtro(string ImageFile, string OutputFile, double r){
 			}
 		}
 		//Para el color verde
-		for(int j =0; j<HEIGHT; j++){
-			for(int i=0; i<WIDTH; i++){
+		for(int j =0; j<HEIGHT; ++j){
+			for(int i=0; i<WIDTH; ++i){
 				p.x= i-centro.x;
 				p.y= j-centro.y;
 				//Si esta fuera del radio, lo cambio de color
 				if (p.x * p.x + p.y * p.y > r*r){
 					imgdata[k] = floor(imgdata[k] * 0.59);
 				}
-				k++;
+				++k;
 			}
 		}
 		//Para el azul
-		for(int j =0; j<HEIGHT; j++){
-			for(int i=0; i<WIDTH; i++){
+		for(int j =0; j<HEIGHT; ++j){
+			for(int i=0; i<WIDTH; ++i){
 				p.x= i-centro.x;
 				p.y= j-centro.y;
 				//Si esta fuera del radio, lo cambio de color
 				if (p.x * p.x + p.y * p.y > r*r){
 					imgdata[k] = floor(imgdata[k] * 0.11);
 				}
-				k++;
+				++k;
 			}
 		}
 		ofstream OutFile;

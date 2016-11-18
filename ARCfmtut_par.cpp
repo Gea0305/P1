@@ -355,7 +355,7 @@ void MaxMin(string ImageFile, string OutputFile){
 		//No leemos los bytes que indican el tamaÃ±o de la matriz
 		vector<unsigned char> imgdata(matrix_size); //Vector para volcar la matriz recibida
 		InFile.seekg(8);
-		for (i=0; i<(matrix_size+8); ++i){
+		for (int i=0; i<(matrix_size+8); ++i){
 			InFile.read((char*)& imgdata[i], 1);
 		}
 		
@@ -403,86 +403,72 @@ void MaxMin(string ImageFile, string OutputFile){
 	}
 }
 
-void aplicar_filtro(string ImageFile, string OutputFile, double r){ 
-   ifstream pInImagen;
-    pInImagen.open(ImageFile, ios::in | ios::binary);
-    if (pInImagen.is_open()){
-		ofstream pOutFile;
-		pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
-		if(!pOutFile) {
-			cout << "Cannot open file to write"<<endl;
+void aplicar_filtro(string ImageFile, string OutputFile, double r){
+	ifstream InImagen;
+	InImagen.open(ImageFile, ios::in | ios::binary);
+	if (InImagen.is_open()){
+		vector<unsigned char> imgdata(matrix_size+8); //Vector para volcar la matriz recibida
+		for (int i=0; i<(matrix_size+8); ++i){
+			InImagen.read((char*)& imgdata[i], 1);
 		}
-		//Escribimos en el circle_out, los primeros 8 bytes de su tamaÃ±o, que sera el tamaÃ±o de la imagen de entrada
-		unsigned char heightData[4];
-		unsigned char widthData[4];
-		pInImagen.seekg(0, ios::beg); 
-		//Leo los 4 primeros bytes
-		pInImagen.read( (char *)& heightData, 4 ); //Lees la altura
-		pInImagen.read( (char *)& widthData, 4);
-		//Escribo en el fichero de salida, los tamaÃ±os de la matriz
-		pOutFile.write( (char *)& heightData, 4);
-		pOutFile.write( (char *)& widthData, 4);
-        pInImagen.seekg(8);
-        struct punto{
-            double x;
-            double y;
-        };
-        struct punto centro, p;
-		unsigned char ImageData;
-	    centro.x=WIDTH/2;
-    	centro.y=HEIGHT/2;
-        //Para el color rojo
-        for(int j =0; j<HEIGHT; j++){
-        	for(int i=0; i<WIDTH; i++){
+		InImagen.close();
+		struct punto{
+		double x;
+		double y;
+		};
+		struct punto centro, p;
+		int k=8;
+		centro.x=WIDTH/2;
+		centro.y=HEIGHT/2;
+		//Para el color rojo
+		for(int j =0; j<HEIGHT; j++){
+			for(int i=0; i<WIDTH; i++){
 				p.x= i-centro.x;
 				p.y= j-centro.y;
 				//Si esta fuera del radio, lo cambio de color
-               	if (p.x * p.x + p.y * p.y > r*r){
-                	pInImagen.read((char *)& ImageData,1);
-                	ImageData = floor(ImageData * 0.3);
-                   	pOutFile.write((char *) &ImageData, 1); 
-	            }else{ //Si esta dentro del radio, escribo el mismo dato sin modificar
-           			pInImagen.read((char *)& ImageData,1);
-					pOutFile.write((char *) &ImageData, 1);
+				if (p.x * p.x + p.y * p.y > r*r){
+					imgdata[k] = floor(imgdata[k] * 0.3);	
 				}
-			}
-        }
-        //Para el color verde
-        for(int j =0; j<HEIGHT; j++){
-        	for(int i=0; i<WIDTH; i++){
-        		p.x= i-centro.x;
-               	p.y= j-centro.y;
-        		//Si esta fuera del radio, lo cambio de color
-               	if (p.x * p.x + p.y * p.y > r*r){
-                	pInImagen.read((char *)& ImageData,1);
-                   	ImageData = floor(ImageData * 0.59);
-                   	pOutFile.write((char *) &ImageData, 1); 
-	            }else{ //Si esta dentro del radio, escribo el mismo dato sin modificar
-					pInImagen.read((char *)& ImageData,1);
-					pOutFile.write((char *) &ImageData, 1);
-				}
-			}
-        }
-        //Para el azul
-        for(int j =0; j<HEIGHT; j++){
-        	for(int i=0; i<WIDTH; i++){
-         		p.x= i-centro.x;
-           		p.y= j-centro.y;
-         		//Si esta fuera del radio, lo cambio de color
-               	if (p.x * p.x + p.y * p.y > r*r){
-                	pInImagen.read((char *)& ImageData,1);
-                   	ImageData = floor(ImageData * 0.11);
-                   	pOutFile.write((char *) &ImageData, 1); 
-	            }else{ //Si esta dentro del radio, esbrio el mismo dato sin modificar
-            		pInImagen.read((char *)& ImageData,1);
-					pOutFile.write((char *) &ImageData, 1);
-				}
+				k++;
 			}
 		}
-		pInImagen.close();
-		pOutFile.close();
+		//Para el color verde
+		for(int j =0; j<HEIGHT; j++){
+			for(int i=0; i<WIDTH; i++){
+				p.x= i-centro.x;
+				p.y= j-centro.y;
+				//Si esta fuera del radio, lo cambio de color
+				if (p.x * p.x + p.y * p.y > r*r){
+					imgdata[k] = floor(imgdata[k] * 0.59);
+				}
+				k++;
+			}
+		}
+		//Para el azul
+		for(int j =0; j<HEIGHT; j++){
+			for(int i=0; i<WIDTH; i++){
+				p.x= i-centro.x;
+				p.y= j-centro.y;
+				//Si esta fuera del radio, lo cambio de color
+				if (p.x * p.x + p.y * p.y > r*r){
+					imgdata[k] = floor(imgdata[k] * 0.11);
+				}
+				k++;
+			}
+		}
+		ofstream OutFile;
+		OutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
+		if(OutFile.is_open()) {
+			for(int i=0; i<(matrix_size+8); ++i){
+				OutFile.write((char*)& imgdata[i], 1);
+			}
+			OutFile.close();
+		}
+		else{
+			cout << "Error al abrir el fichero "<<OutputFile<<" para escribir"<<endl;
+		}
 	}
 	else{
-		cerr<<"Error al abrir el fichero "<<ImageFile<<endl;  
+		cerr<<"Error al abrir el fichero "<<ImageFile<<endl;
 	}
 }

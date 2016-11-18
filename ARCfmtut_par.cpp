@@ -10,20 +10,41 @@ using namespace std;
 //Prototipado de las funciones
 void histograma(string, string, int);
 void leer_dimensiones(string);
-void leer_datos(string, unsigned char m[] );
-void escribir_datos(string, unsigned char m[] );
 void aplicar_mascara(string, string, string);
-void MaxMin(unsigned char m[], string);
-void rotacion(unsigned char m[], double);	
-void aplicar_filtro(unsigned char m[], double);
+void MaxMin(string, string);
+void rotacion(string, string, double);	
+void aplicar_filtro(string, string, double);
 int HEIGHT;
 int WIDTH;
 int matrix_size; //TamaÃ±o de la matriz sin contar con los bytes que indican el tamaÃ±o
+
+/*void leer_datos(string fileName, unsigned char imagen[]){
+ifstream InFile;
+InFile.open(fileName, ios::in | ios::binary); // open fileName and read as binary.
+if (InFile.is_open()) {
+for(int i=0; i< matrix_size+8; i++){
+InFile.read( (char *)& imagen[i], 1);
+}
+}else{
+cerr <<"Error opening file";
+}
+}
+void escribir_datos(string OutputFile, unsigned char imagen[]){
+//Creamos el ofstream, para escribir en el fichero de salida
+ofstream pOutFile;
+pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
+if(!pOutFile) {
+cout << "Error al abrir el fichero "<<OutputFile<<" para escribir"<<endl;
+}
+for(int i=0; i<matrix_size+8; i++){
+pOutFile.write( (char *) &imagen[i], 1);
+}
+}*/
+
 //argc= numero de argumentos especificados por linea de comandos
 //argv[i] contiene el contenido del argumento i
-
 int main(int argc, char ** argv){
-	
+	cout<<"Hola"<<endl;
 	int cont=1;
 	int num_funcion=-1;
 	int num_histograma=-1;
@@ -91,9 +112,6 @@ int main(int argc, char ** argv){
     	return 1;
     }
 	leer_dimensiones(in_file);
-	unsigned char imagen[matrix_size+8];
-	leer_datos(in_file, imagen);
-	
     //Seleccion del numero de funcion
     switch(num_funcion){
     	case(0):
@@ -110,7 +128,7 @@ int main(int argc, char ** argv){
     		break;
 		case(1):
 			cout<<"Funcion maximos y minimos"<<endl;
-			MaxMin(imagen, out_file);
+			MaxMin(in_file, out_file);
 			break;
 		case(2):
 			if(path_mascara==""){
@@ -123,7 +141,6 @@ int main(int argc, char ** argv){
     		}
 			cout<<"Funcion mascara"<<endl;
 			aplicar_mascara(in_file, out_file, path_mascara);
-			escribir_datos(out_file, imagen);
 			break;
 		case(3):
 			if(num_angulo<0){
@@ -135,8 +152,7 @@ int main(int argc, char ** argv){
     			return 1;
     		}
 			cout<<"Rotacion de la imagen"<<endl;
-			rotacion(imagen, num_angulo);
-			escribir_datos(out_file, imagen);
+			rotacion(in_file, out_file, num_angulo);
 			break;
 		case(4):
 			if(num_radio<0){
@@ -148,8 +164,7 @@ int main(int argc, char ** argv){
     			return 1;
     		}
 			cout<<"Funcion de filtro blanco y negro selectivo"<<endl;
-			aplicar_filtro(imagen, num_radio);
-			escribir_datos(out_file, imagen);
+			aplicar_filtro(in_file, out_file, num_radio);
 			break;
 		default:
 			cerr<<"Falta introducir -u numero_funcion"<<endl;
@@ -170,72 +185,48 @@ void leer_dimensiones(string fileName){
 		//Lee 2000 0000, como esta en LEndian seria 0000 0020, que equivale a 32.En las posiciones el 0 seria el 3, el 1 el 2 y el 3 el 0
 		//Lo cambio a BIGENDIAN
    	    HEIGHT += (int)heightData[0] | ((int)heightData[1]<<8) | ((int)heightData[2]<<16) | ((int)heightData[3]<<24);
-	 	cout<<"HEIGHT:  "<<HEIGHT<<endl;
 		InFile.read( (char *)& widthData, 4); 
 		WIDTH += (int)widthData[0] | ((int)widthData[1]<<8) | ((int)widthData[2]<<16) | ((int)widthData[3]<<24);
-	  	cout <<"WIDTH: "<<WIDTH<<endl;
 		matrix_size=  (HEIGHT*WIDTH)*3;
+		InFile.close();
+	  	cout<<"Width: "<<WIDTH<<endl;
+	 	cout<<"Height: "<<HEIGHT<<endl;
 		cout<<"Matrix size: "<< matrix_size<<endl;
 	}else{
 		cerr <<"Error opening file";
 	} 
 }
-void  leer_datos(string fileName, unsigned char imagen[]){
-	ifstream InFile;
-	InFile.open(fileName, ios::in | ios::binary); // open fileName and read as binary.
-    if (InFile.is_open()) {
-		for(int i=0; i< matrix_size+8; i++){
-			InFile.read( (char *)& imagen[i], 1); 
-		}
-	}else{
-		cerr <<"Error opening file";
-	} 
-}
-void  escribir_datos(string OutputFile, unsigned char imagen[]){
-		//Creamos el ofstream, para escribir en el fichero de salida
-       	ofstream pOutFile;
-		pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);	
-       	if(!pOutFile) { 
-    		cout << "Error al abrir el fichero "<<OutputFile<<" para escribir"<<endl;  
-   		} 
-   		for(int i=0; i<matrix_size+8; i++){
-   			pOutFile.write( (char *) &imagen[i], 1);
-		}
-}
 
 void histograma(string ImageFile, string OutputFile, int t){
-	/*
 	ifstream InFile;
 	InFile.open(ImageFile, ios::in | ios::binary);
 	if (InFile.is_open()){
-		unsigned char imgdata;
-		int red;
-		int green;
+		int i, j;
+		bool found;
 		double grey;
-		vector<int> histograma(t, 0); //Vector con los tramos inicializado a 0
-		for (int i=0; i<(HEIGHT*WIDTH); ++i){ //Bucle para coger los tres colores de cada pixel
-			//Pasamos hasta el byte rojo correspondiente al pixel actual
-			InFile.seekg(8+i, ios::beg);
-			InFile.read((char*)& imgdata,1);
-			red=imgdata;
-			InFile.seekg(HEIGHT*WIDTH-1); //Avanzamos a su correspondiente valor en los verdes
-			InFile.read((char*)& imgdata,1);
-			green=imgdata;
-			InFile.seekg(HEIGHT*WIDTH-1); //Avanzamos a su correspondiente valor en los azules
-			InFile.read((char*)& imgdata,1);
-			grey=(red*0.3+green*0.59+imgdata*0.11);
-			for (double j=(255/t), bool found=false; j<=255 && !found; j+=j){ //Bucle para encontrar el tramo adecuado en el histograma
-				if (grey<=j){ //Si encontramos su tramo no volvemos a ejecutar el for
-					histograma[j*t/255-1]+=1;
-					found=true;
+		vector<int> histogram(t, 0); //Vector con los tramos inicializado a 0
+		vector<unsigned char> imgdata(matrix_size+8); //Vector para volcar la matriz recibida
+		for (i=0; i<(matrix_size+8); ++i){
+			InFile.read((char*)& imgdata[i], 1);
+		}
+		InFile.close();
+		for (i=0; i<(HEIGHT*WIDTH); ++i){ //Bucle para calcular el gris resultante de cada pixel
+			grey=(imgdata[i+8]*0.3+imgdata[HEIGHT*WIDTH+i+8]*0.59+imgdata[2*HEIGHT*WIDTH+i+8]*0.11);
+			for (j=0, found=false; j<t && !found; ++j){ //Bucle para encontrar el tramo adecuado en el histograma
+				if (grey<((j+1)*(255.0/t))){ //Comprobamos desde el primer tramo hasta que entre en uno
+					histogram[j]+=1;
+					found=true; //Cuando encontramos su tramo no volvemos a ejecutar el for
 				}
 			}
 		}
 		ofstream OutFile;
 		OutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
-		if (OutFile.is_open()){ 
-			for (int i=0; i<t; ++i){
-				OutFile<<histograma[i];
+		if (OutFile.is_open()){ //Bucle para escribir el resultado
+			for (i=0; i<t; ++i){
+				OutFile<<histogram[i];
+   				if(i<t-1){
+   					OutFile<<" ";
+				}
 			}
 			OutFile.close();
 		}else{
@@ -243,49 +234,40 @@ void histograma(string ImageFile, string OutputFile, int t){
 		}
 	}else{
 		cerr<<"Error al abrir el fichero "<<ImageFile<<endl;
-	} */
+	}
 }
 
-void aplicar_mascara(string ImageFile, string MaskFile, string OutputFile){
+void aplicar_mascara(string ImageFile, string OutputFile, string MaskFile){
 	ifstream InImagen;
 	InImagen.open(ImageFile, ios::in | ios::binary); // open fileName and read as binary.
 	ifstream InMascara;
 	InMascara.open(MaskFile, ios::in | ios::binary); 
 	if (InImagen.is_open()) {
         if (InMascara.is_open()) {
+			vector<unsigned char> imgdata(matrix_size+8); //Vector para volcar la matriz recibida
+			for (int i=0; i<(matrix_size+8); ++i){
+				InImagen.read((char*)& imgdata[i], 1);
+			}
+			InImagen.close();
+			vector<unsigned char> mskdata(matrix_size+8); //Vector para volcar la matriz recibida
+			for (int i=0; i<(matrix_size+8); ++i){
+				InMascara.read((char*)& mskdata[i], 1);
+			}
+			InMascara.close();
+			for(int i=8; i<(matrix_size+8); ++i){
+				imgdata[i]*=mskdata[i];
+			}
           	//Creamos el ofstream, para escribir en el fichero de salida
          	ofstream pOutFile;
 			pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);	
-	       	if(!pOutFile) { 
+	       	if(pOutFile.is_open()) {
+	       		for(int i=0; i<(matrix_size+8); ++i){
+	       			pOutFile.write((char*)& imgdata[i], 1);
+	       		}
+				pOutFile.close();
+   			}else{
     			cout << "Error al abrir el fichero "<<OutputFile<<" para escribir"<<endl;  
-   			} 
-     		//Escribimos en el mask_out, los primeros 8 bytes de su tamaÃ±o, que sera el tamaÃ±o de la imagen de entrada
-	   		unsigned char heightData[4]; 
-			unsigned char widthData[4]; 
-	   		InImagen.seekg(0, ios::beg); //pos filter at beginning of image file.
-			//Leo los 4 primeros bytes
-			InImagen.read( (char *)& heightData, 4 ); //Lees la altura
-		 	InImagen.read( (char *)& widthData, 4); 
-		 	//Escribo en el fichero de salida, los tamaÃ±os de la matriz
-		 	pOutFile.write( (char *)& heightData, 4);
-		 	pOutFile.write( (char *)& widthData, 4);
-		    //Donde almacenamos los datos tienen que ser unsigned char, ya que van desde 0 a 255    
-			unsigned char ImageData; 
-			unsigned char MaskData; 
-			int contador=0;
-			//Ponemos el puntero para que emIece a leer en el byte 9, ya que los 8 primeros son del tamaÃ±o de la matriz
-			InMascara.seekg(8); 
-			//Ponemos contador<matrix_size, ya que con !ImageData.eof, debe ser que lee tambien el /0 del final, y escribe una posicion mas de la debida
-			while(contador<matrix_size){
-				InImagen.read( (char *)& ImageData, 1 ); 
-				InMascara.read( (char *)& MaskData, 1 );	
-				ImageData= ImageData*MaskData;
-				pOutFile.write( (char *) &ImageData, 1);
-				contador++;
-			}
-			InImagen.close();
-			pOutFile.close();
-			InMascara.close();
+   			}
 		}else{
 			cerr<<"Error opening "<<MaskFile<<endl;
 		}
@@ -294,61 +276,89 @@ void aplicar_mascara(string ImageFile, string MaskFile, string OutputFile){
 	}
 }
 
-void rotacion( unsigned char imagen[] , double gr){
-	
-		
-		int contador=8;
+void rotacion(string ImageFile, string OutputFile, double gr){
+	ifstream InFile;
+	InFile.open(ImageFile, ios::in | ios::binary);
+	if (InFile.is_open()) {
+		//Creamos el ofstream, para escribir en el fichero de salida
+       	ofstream pOutFile;
+		pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);	
+       	if(!pOutFile) { 
+    		cout << "Error al abrir el fichero "<<OutputFile<<" para escribir"<<endl;  
+   		} 
+   		cout<<"Escribo la cabecera en el archivo de rotacion"<<endl;
+		unsigned char imgdata; 
+		//Escribimos en el rot_out, los primeros 8 bytes de su tamaÃ±o, que sera el tamaÃ±o de la imagen de entrada
+	   	unsigned char heightData[4]; 
+		unsigned char widthData[4]; 
+		InFile.seekg(0, ios::beg); //pos filter at beginning of image file.
+		//Leo los 4 primeros bytes
+		InFile.read( (char *)& heightData, 4 ); //Lees la altura
+		InFile.read( (char *)& widthData, 4); 
+		//Escribo en el fichero de salida, los tamaÃ±os de la matriz
+		pOutFile.write( (char *)& heightData, 4);
+		pOutFile.write( (char *)& widthData, 4);
+		cout<< "He escrito la cabecera y voy con lo siguiente"<<endl;
 		double xc , yc , xi,yi;
 		int xf,yf;
-		unsigned char fin[WIDTH][HEIGHT]; //= {0};
-		memset(fin, 0, WIDTH*HEIGHT);
+		vector<unsigned char> fin(WIDTH*HEIGHT, 0); //Vector con los tramos inicializado a 0
 		//Calculamos el centro de la imagen
+		cout<<"Voy a calcular el centro"<<endl;
 		xc=WIDTH/2;
 		yc=HEIGHT/2;
 		cout<<"El centro es xc:"<<xc<<" yc:"<<yc<<endl;
 		int num_colores= 0;
-
-		//AQUI NO PARALELIZO
+		int i,j;
+		int contador=0;
 		while(num_colores<3){
-			//ESTO LO PARALELIZO
-			for (int j=0; j<HEIGHT; j++){
-				for (int i=0; i<WIDTH; i++){
+			for (j=0; j<HEIGHT; j++){
+				for(i=0; i<WIDTH; i++){
+
+					for (; contador<WIDTH*HEIGHT; contador++){
+				
 					xi=i-xc;
 					yi=j-yc;
 					xf= ceil( cos((gr*M_PI)/180)*xi - sin((gr*M_PI)/180)*yi +xc);
 					yf= ceil( sin((gr*M_PI)/180)*xi + cos((gr*M_PI)/180)*yi +yc);
-					
+					InFile.read( (char *)& imgdata,1);
 					if(yf<HEIGHT && yf>=0 && xf<WIDTH && xf>=0){
-						fin[xf][yf]= imagen[contador];
+						fin[contador]= imgdata;
 					}
+					
 				}
-				contador++;
+				}
 			}
-			for (int j=0; j<HEIGHT; j++){
-				for (int i=0; i<WIDTH; i++){	
-					pOutFile.write( (char *)& fin[i][j], 1);
-				}
+			
+			
+			for (contador=0; contador<WIDTH*HEIGHT; contador++){
+					
+					pOutFile.write( (char *)& fin[contador], 1);
+				
 			}
 			num_colores++;
-			memset(fin, 0, WIDTH*HEIGHT);
-		} 
-	}
+			memset(&fin[0], 0, fin.size() * sizeof fin[0]);
+		}
+	}else{
+		cerr<<"Error al abrir "<<ImageFile<<endl;
+		return;	
+	} 
+}
 
-
-void MaxMin(unsigned char imagen[], string OutputFile){
-	
-		
-		
+void MaxMin(string ImageFile, string OutputFile){
+	ifstream InFile;
+	InFile.open(ImageFile, ios::in | ios::binary);
+ 	if (InFile.is_open()) {
+		//leer_dimenciones(img);
+		unsigned char imgdata; 
 		int colores[]= {0,255,0,255,0,255} ;
 		int red;
 		int blue;
 		int green;
-
 		//No leemos los bytes que indican el tamaÃ±o de la matriz
-		int contador=8;
-		for (; contador < (matrix_size/3) ; contador++){
-		
-			red=imagen[contador];
+		InFile.seekg(8); 
+		for (int i =0; i < (HEIGHT*WIDTH) ; i++){
+			InFile.read( (char *)& imgdata,1);
+			red=imgdata;
 			//Hay un nuevo maximo
 			if (colores[0] < red){
 				colores[0]=red;
@@ -358,25 +368,19 @@ void MaxMin(unsigned char imagen[], string OutputFile){
 				colores[1]=red;
 			}
 		}
-		cout<<"Empiezo con los verdes"<<endl;
-		for (; contador< (matrix_size*2/3); contador++){
-			
-
-			green=imagen[contador];
-			
-
+		for (int i =0; i< (HEIGHT*WIDTH); i++){
+			InFile.read( (char *)& imgdata,1);
+			green=imgdata;
 			if (colores[2] < green){
 				colores[2]=green;
-				
 			}
 			if (colores[3] > green){
 				colores[3]=green;
-				
 			}
 		}
-		for ( ; contador<(matrix_size); contador++){
-			
-			blue=imagen[contador];
+		for (int i =0; i<(HEIGHT*WIDTH); i++){
+			InFile.read( (char *)& imgdata,1);
+			blue=imgdata;
 			if (colores[4] < blue){
 				colores[4]=blue;
 			}
@@ -384,8 +388,6 @@ void MaxMin(unsigned char imagen[], string OutputFile){
 				colores[5]=blue;
 			}
 		}
-	
-		//Esta region debe dejar de ser paralela
 		ofstream pOutFile;
     	pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
     	if(!pOutFile) { 
@@ -397,20 +399,39 @@ void MaxMin(unsigned char imagen[], string OutputFile){
    				pOutFile<<" ";
 			}
 		}
+		InFile.close();
    		pOutFile.close(); 
-
+	}else{
+	 	cerr<<"Error al abrir el fichero "<<ImageFile<<endl;
 	}
+}
 
-
-void aplicar_filtro( unsigned char imagen[], double r){ 
- 
-		//Empiezo a recorrer la imagen sin leer la cabecera
-        int contador=8;
+void aplicar_filtro(string ImageFile, string OutputFile, double r){ 
+   ifstream pInImagen;
+    pInImagen.open(ImageFile, ios::in | ios::binary);
+    if (pInImagen.is_open()){
+		ofstream pOutFile;
+		pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
+		if(!pOutFile) {
+			cout << "Cannot open file to write"<<endl;
+		}
+		//Escribimos en el circle_out, los primeros 8 bytes de su tamaÃ±o, que sera el tamaÃ±o de la imagen de entrada
+		unsigned char heightData[4];
+		unsigned char widthData[4];
+		pInImagen.seekg(0, ios::beg); 
+		//Leo los 4 primeros bytes
+		pInImagen.read( (char *)& heightData, 4 ); //Lees la altura
+		pInImagen.read( (char *)& widthData, 4);
+		//Escribo en el fichero de salida, los tamaÃ±os de la matriz
+		pOutFile.write( (char *)& heightData, 4);
+		pOutFile.write( (char *)& widthData, 4);
+        pInImagen.seekg(8);
         struct punto{
             double x;
             double y;
         };
         struct punto centro, p;
+		unsigned char ImageData;
 	    centro.x=WIDTH/2;
     	centro.y=HEIGHT/2;
         //Para el color rojo
@@ -420,10 +441,13 @@ void aplicar_filtro( unsigned char imagen[], double r){
 				p.y= j-centro.y;
 				//Si esta fuera del radio, lo cambio de color
                	if (p.x * p.x + p.y * p.y > r*r){
-                	imagen[contador] = floor(imagen[contador] * 0.3);
-                   	
-	            }
-	            contador++;
+                	pInImagen.read((char *)& ImageData,1);
+                	ImageData = floor(ImageData * 0.3);
+                   	pOutFile.write((char *) &ImageData, 1); 
+	            }else{ //Si esta dentro del radio, escribo el mismo dato sin modificar
+           			pInImagen.read((char *)& ImageData,1);
+					pOutFile.write((char *) &ImageData, 1);
+				}
 			}
         }
         //Para el color verde
@@ -433,11 +457,13 @@ void aplicar_filtro( unsigned char imagen[], double r){
                	p.y= j-centro.y;
         		//Si esta fuera del radio, lo cambio de color
                	if (p.x * p.x + p.y * p.y > r*r){
-                	
-                   imagen[contador] = floor(imagen[contador] * 0.59);
-                   	
-	            }
-	            contador++;
+                	pInImagen.read((char *)& ImageData,1);
+                   	ImageData = floor(ImageData * 0.59);
+                   	pOutFile.write((char *) &ImageData, 1); 
+	            }else{ //Si esta dentro del radio, escribo el mismo dato sin modificar
+					pInImagen.read((char *)& ImageData,1);
+					pOutFile.write((char *) &ImageData, 1);
+				}
 			}
         }
         //Para el azul
@@ -447,16 +473,19 @@ void aplicar_filtro( unsigned char imagen[], double r){
            		p.y= j-centro.y;
          		//Si esta fuera del radio, lo cambio de color
                	if (p.x * p.x + p.y * p.y > r*r){
-                	
-                   imagen[contador] = floor(imagen[contador] * 0.11);
-                
-	            }
-	            contador++;
+                	pInImagen.read((char *)& ImageData,1);
+                   	ImageData = floor(ImageData * 0.11);
+                   	pOutFile.write((char *) &ImageData, 1); 
+	            }else{ //Si esta dentro del radio, esbrio el mismo dato sin modificar
+            		pInImagen.read((char *)& ImageData,1);
+					pOutFile.write((char *) &ImageData, 1);
+				}
 			}
 		}
-		
-		
+		pInImagen.close();
+		pOutFile.close();
 	}
-	
-	
-
+	else{
+		cerr<<"Error al abrir el fichero "<<ImageFile<<endl;  
+	}
+}

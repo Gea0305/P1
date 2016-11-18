@@ -325,44 +325,39 @@ void MaxMin(string ImageFile, string OutputFile){
 	ifstream InFile;
 	InFile.open(ImageFile, ios::in | ios::binary);
  	if (InFile.is_open()) {
-		//leer_dimenciones(img);
-		unsigned char imgdata; 
+		//leer_dimenciones(img); 
 		int colores[]= {0,255,0,255,0,255} ;
-		int red;
-		int blue;
-		int green;
 		//No leemos los bytes que indican el tamaÃ±o de la matriz
-		InFile.seekg(8); 
+		vector<unsigned char> imgdata(matrix_size); //Vector para volcar la matriz recibida
+		InFile.seekg(8);
+		for (i=0; i<(matrix_size+8); ++i){
+			InFile.read((char*)& imgdata[i], 1);
+		}
+		
 		for (int i =0; i < (HEIGHT*WIDTH) ; i++){
-			InFile.read( (char *)& imgdata,1);
-			red=imgdata;
 			//Hay un nuevo maximo
-			if (colores[0] < red){
-				colores[0]=red;
+			if (colores[0] < imgdata[i]){
+				colores[0]=imgdata[i];
 			}
 			//Hay un nuevo minio
-			if (colores[1] > red){
-				colores[1]=red;
+			if (colores[1] > imgdata[i]){
+				colores[1]=imgdata[i];
 			}
 		}
-		for (int i =0; i< (HEIGHT*WIDTH); i++){
-			InFile.read( (char *)& imgdata,1);
-			green=imgdata;
-			if (colores[2] < green){
-				colores[2]=green;
+		for (int i =HEIGHT*WIDTH; i< (HEIGHT*WIDTH); i++){
+			if (colores[2] < imgdata[i]){
+				colores[2]=imgdata[i];
 			}
-			if (colores[3] > green){
-				colores[3]=green;
+			if (colores[3] > imgdata[i]){
+				colores[3]=imgdata[i];
 			}
 		}
-		for (int i =0; i<(HEIGHT*WIDTH); i++){
-			InFile.read( (char *)& imgdata,1);
-			blue=imgdata;
-			if (colores[4] < blue){
-				colores[4]=blue;
+		for (int i =HEIGHT*WIDTH*2; i<(HEIGHT*WIDTH); i++){
+			if (colores[4] < imgdata[i]){
+				colores[4]=imgdata[i];
 			}
-			if (colores[5] > blue){
-				colores[5]=blue;
+			if (colores[5] > imgdata[i]){
+				colores[5]=imgdata[i];
 			}
 		}
 		ofstream pOutFile;

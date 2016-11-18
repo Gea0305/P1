@@ -330,7 +330,7 @@ void MaxMin(string ImageFile, string OutputFile){
 		//No leemos los bytes que indican el tamaÃ±o de la matriz
 		vector<unsigned char> imgdata(matrix_size); //Vector para volcar la matriz recibida
 		InFile.seekg(8);
-		for (i=0; i<(matrix_size+8); ++i){
+		for (i=0; i<(matrix_size); ++i){
 			InFile.read((char*)& imgdata[i], 1);
 		}
 		

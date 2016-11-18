@@ -206,13 +206,14 @@ void histograma(string ImageFile, string OutputFile, int t){
 		bool found;
 		double grey;
 		vector<int> histogram(t, 0); //Vector con los tramos inicializado a 0
-		vector<unsigned char> imgdata(matrix_size+8); //Vector para volcar la matriz recibida
-		for (i=0; i<(matrix_size+8); ++i){
+		vector<unsigned char> imgdata(matrix_size); //Vector para volcar la matriz recibida
+		InFile.seekg(8);
+		for (i=0; i<matrix_size; ++i){
 			InFile.read((char*)& imgdata[i], 1);
 		}
 		InFile.close();
 		for (i=0; i<(HEIGHT*WIDTH); ++i){ //Bucle para calcular el gris resultante de cada pixel
-			grey=(imgdata[i+8]*0.3+imgdata[HEIGHT*WIDTH+i+8]*0.59+imgdata[2*HEIGHT*WIDTH+i+8]*0.11);
+			grey=(imgdata[i]*0.3+imgdata[i+HEIGHT*WIDTH]*0.59+imgdata[i+HEIGHT*WIDTH*2]*0.11);
 			for (j=0, found=false; j<t && !found; ++j){ //Bucle para encontrar el tramo adecuado en el histograma
 				if (grey<((j+1)*(255.0/t))){ //Comprobamos desde el primer tramo hasta que entre en uno
 					histogram[j]+=1;

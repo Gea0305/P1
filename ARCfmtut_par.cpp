@@ -256,8 +256,20 @@ void aplicar_mascara(string ImageFile, string OutputFile, string MaskFile){
 				InMascara.read((char*)& mskdata[i], 1);
 			}
 			InMascara.close();
-			for(int i=8; i<(matrix_size+8); ++i){
-				imgdata[i]*=mskdata[i];
+			//int chunk=2;
+			int tid, nthreads;
+			//dont need to define the number of threads the program will define them based on the number of cores on the machine
+			#pragma omp parallel  shared(imgdata,mskdata,matrix_size,nthreads) private(tid)
+			{
+				tid = omp_get_thread_num();
+  					if (tid == 0){
+   						 nthreads = omp_get_num_threads();
+    					 printf("Starting matrix multiple example with %d threads\n",nthreads);
+					}
+				#pragma omp for schedule (static)
+				for(int i=8; i<(matrix_size+8); ++i){
+					imgdata[i]*=mskdata[i];
+				}
 			}
           	//Creamos el ofstream, para escribir en el fichero de salida
          	ofstream pOutFile;
@@ -279,7 +291,7 @@ void aplicar_mascara(string ImageFile, string OutputFile, string MaskFile){
 }
 
 void rotacion(string ImageFile, string OutputFile, double gr){
-	ifstream InFile;
+		ifstream InFile;
 	InFile.open(ImageFile, ios::in | ios::binary);
 	if (InFile.is_open()) {
 	 	ofstream pOutFile;

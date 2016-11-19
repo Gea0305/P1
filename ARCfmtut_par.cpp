@@ -282,67 +282,54 @@ void rotacion(string ImageFile, string OutputFile, double gr){
 	ifstream InFile;
 	InFile.open(ImageFile, ios::in | ios::binary);
 	if (InFile.is_open()) {
-		//Creamos el ofstream, para escribir en el fichero de salida
-       	ofstream pOutFile;
-		pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);	
-       	if(!pOutFile) { 
-    		cout << "Error al abrir el fichero "<<OutputFile<<" para escribir"<<endl;  
-   		} 
-   		cout<<"Escribo la cabecera en el archivo de rotacion"<<endl;
-		unsigned char imgdata; 
-		//Escribimos en el rot_out, los primeros 8 bytes de su tamaÃ±o, que sera el tamaÃ±o de la imagen de entrada
-	   	unsigned char heightData[4]; 
-		unsigned char widthData[4]; 
-		InFile.seekg(0, ios::beg); //pos filter at beginning of image file.
-		//Leo los 4 primeros bytes
-		InFile.read( (char *)& heightData, 4 ); //Lees la altura
-		InFile.read( (char *)& widthData, 4); 
-		//Escribo en el fichero de salida, los tamaÃ±os de la matriz
-		pOutFile.write( (char *)& heightData, 4);
-		pOutFile.write( (char *)& widthData, 4);
-		cout<< "He escrito la cabecera y voy con lo siguiente"<<endl;
-		double xc , yc , xi,yi;
+	 	ofstream pOutFile;
+		pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
+    	if(pOutFile.is_open()){
+		//Se escribe la cabecera 
+   		unsigned char cabecera[8];
+   		InFile.read((char*)& cabecera, 8);
+   		pOutFile.write( (char *)& cabecera, 8);	
+   		//Se vuelca la matriz en el vector
+		vector<unsigned char> imgdata(matrix_size); 
+			for (int i=0; i<(matrix_size); ++i){
+				InFile.read((char*)& imgdata[i], 1);
+			}
+			
+		InFile.close();
+		vector<unsigned char> fin(matrix_size);
+		double xc,yc,xi,yi;
 		int xf,yf;
-		vector<unsigned char> fin(WIDTH*HEIGHT, 0); //Vector con los tramos inicializado a 0
 		//Calculamos el centro de la imagen
-		cout<<"Voy a calcular el centro"<<endl;
 		xc=WIDTH/2;
 		yc=HEIGHT/2;
-		cout<<"El centro es xc:"<<xc<<" yc:"<<yc<<endl;
-		int num_colores= 0;
-		int i,j;
 		int contador=0;
-		while(num_colores<3){
-			for (j=0; j<HEIGHT; j++){
-				for(i=0; i<WIDTH; i++){
-
-					for (; contador<WIDTH*HEIGHT; contador++){
-				
+		int offset=0;
+		for(int k=0; k<3; ++k){
+			for (int j=0; j<HEIGHT; j++){
+				for(int i=0; i<WIDTH; i++){
 					xi=i-xc;
 					yi=j-yc;
 					xf= ceil( cos((gr*M_PI)/180)*xi - sin((gr*M_PI)/180)*yi +xc);
 					yf= ceil( sin((gr*M_PI)/180)*xi + cos((gr*M_PI)/180)*yi +yc);
-					InFile.read( (char *)& imgdata,1);
 					if(yf<HEIGHT && yf>=0 && xf<WIDTH && xf>=0){
-						fin[contador]= imgdata;
+						fin[(yf*WIDTH + xf)+offset]= imgdata[contador];
+						
 					}
-					
-				}
+					contador++;
 				}
 			}
-			
-			
-			for (contador=0; contador<WIDTH*HEIGHT; contador++){
-					
-					pOutFile.write( (char *)& fin[contador], 1);
-				
-			}
-			num_colores++;
-			memset(&fin[0], 0, fin.size() * sizeof fin[0]);
+			offset+=HEIGHT*WIDTH;
 		}
+      
+    		for(int i=0; i<(matrix_size); ++i){
+    			pOutFile.write((char*)& fin[i], 1);
+	   		}
+	   		pOutFile.close();
+	   	}else{
+			cerr<<"Error al abrir "<<OutputFile<<endl;
+	   	}
 	}else{
 		cerr<<"Error al abrir "<<ImageFile<<endl;
-		return;	
 	} 
 }
 

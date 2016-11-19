@@ -1,3 +1,11 @@
+/* 
+Practica 1 Arquitectura de Computadores
+Autores:
+-Jorge Navarro
+-Alfonso Martinez
+-Alejandro Blanco
+-Gonzalo Lencina
+*/
 #include <string>
 #include <iostream>
 #include <cstdio>
@@ -16,10 +24,9 @@ void rotacion(string, string, double);
 void aplicar_filtro(string, string, double);
 int HEIGHT;
 int WIDTH;
-int matrix_size; //TamaÃ±o de la matriz sin contar con los bytes que indican el tamaÃ±o
+int matrix_size; 
 
-//argc= numero de argumentos especificados por linea de comandos
-//argv[i] contiene el contenido del argumento i
+
 int main(int argc, char ** argv){
 	cout<<"Hola"<<endl;
 	int cont=1;
@@ -29,7 +36,8 @@ int main(int argc, char ** argv){
 	double num_radio=-1;
 	string in_file="";
 	string out_file="";
-	string path_mascara="";    
+	string path_mascara="";   
+	//Bucle donde recorremos el listado de argumentos almacenando la informacion
 	while ((cont < argc) && (argv[cont][0]=='-')) {
         string sw = argv[cont];
         if (sw=="-u") {
@@ -79,7 +87,7 @@ int main(int argc, char ** argv){
         }
         ++cont;
     }
-    //COmrpobaciones que son comunes para todas las funciones
+    //Comprobaciones que son comunes para todas las funciones
     if(in_file == ""){
     	cerr<<"Falta introducir -i input_file"<<endl;
     	return 1;
@@ -151,17 +159,16 @@ int main(int argc, char ** argv){
 
 void leer_dimensiones(string fileName){
 	ifstream InFile;
-	InFile.open(fileName, ios::in | ios::binary); // open fileName and read as binary.
+	InFile.open(fileName, ios::in | ios::binary); 
     if (InFile.is_open()) {
 	    //Donde almacenamos los datos tienen que ser unsigned char, ya que van desde 0 a 255    
 		unsigned char heightData[4]; 
 		unsigned char widthData[4]; 
-		InFile.seekg(0, ios::beg); //pos filter at beginning of image file. 
+		InFile.seekg(0, ios::beg);  
 		//Leo los 4 primeros bytes
-		InFile.read( (char *)& heightData, 4 ); //Lees la altura
-		//Lee 2000 0000, como esta en LEndian seria 0000 0020, que equivale a 32.En las posiciones el 0 seria el 3, el 1 el 2 y el 3 el 0
-		//Lo cambio a BIGENDIAN
-   	    HEIGHT += (int)heightData[0] | ((int)heightData[1]<<8) | ((int)heightData[2]<<16) | ((int)heightData[3]<<24);
+		InFile.read( (char *)& heightData, 4 ); 
+		
+   	        HEIGHT += (int)heightData[0] | ((int)heightData[1]<<8) | ((int)heightData[2]<<16) | ((int)heightData[3]<<24);
 		InFile.read( (char *)& widthData, 4); 
 		WIDTH += (int)widthData[0] | ((int)widthData[1]<<8) | ((int)widthData[2]<<16) | ((int)widthData[3]<<24);
 		matrix_size=  (HEIGHT*WIDTH)*3;
@@ -217,7 +224,7 @@ void histograma(string ImageFile, string OutputFile, int t){
 
 void aplicar_mascara(string ImageFile, string OutputFile, string MaskFile){
 	ifstream InImagen;
-	InImagen.open(ImageFile, ios::in | ios::binary); // open fileName and read as binary.
+	InImagen.open(ImageFile, ios::in | ios::binary); 
 	ifstream InMascara;
 	InMascara.open(MaskFile, ios::in | ios::binary); 
 	if (InImagen.is_open()) {
@@ -227,17 +234,18 @@ void aplicar_mascara(string ImageFile, string OutputFile, string MaskFile){
 				InImagen.read((char*)& imgdata[i], 1);
 			}
 			InImagen.close();
-			vector<unsigned char> mskdata(matrix_size+8); //Vector para volcar la matriz recibida
+			vector<unsigned char> mskdata(matrix_size+8); //Vector para volcar la mascara recibida
 			for (int i=0; i<(matrix_size+8); ++i){
 				InMascara.read((char*)& mskdata[i], 1);
 			}
 			InMascara.close();
-			for(int i=8; i<(matrix_size+8); ++i){
+			
+			for(int i=8; i<(matrix_size+8); ++i){	//Aplicacion de la mascara
 				imgdata[i]*=mskdata[i];
 			}
-          	//Creamos el ofstream, para escribir en el fichero de salida
+          	//Escritura en el fichero de salida
          	ofstream pOutFile;
-			pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);	
+		pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);	
 	       	if(pOutFile.is_open()) {
 	       		for(int i=0; i<(matrix_size+8); ++i){
 	       			pOutFile.write((char*)& imgdata[i], 1);
@@ -260,7 +268,7 @@ void rotacion(string ImageFile, string OutputFile, double gr){
 	if (InFile.is_open()) {
 		//Creamos el ofstream, para escribir en el fichero de salida
        	ofstream pOutFile;
-		pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);	
+	pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);	
        	if(!pOutFile) { 
     		cout << "Error al abrir el fichero "<<OutputFile<<" para escribir"<<endl;  
    		} 
@@ -286,24 +294,22 @@ void rotacion(string ImageFile, string OutputFile, double gr){
 		while(num_colores<3){
 			for (int j=0; j<HEIGHT; ++j){
 				for(int i=0; i<WIDTH; ++i){
-					
 					xi=i-xc;
 					yi=j-yc;
 					xf= ceil( cos((gr*M_PI)/180)*xi - sin((gr*M_PI)/180)*yi +xc);
 					yf= ceil( sin((gr*M_PI)/180)*xi + cos((gr*M_PI)/180)*yi +yc);
-					
 					if(yf<HEIGHT && yf>=0 && xf<WIDTH && xf>=0){
 						fin[yf*WIDTH + xf]= imgdata[contador];
-						
 					}
-				++contador;	
+					++contador;	
 				}
 			}
 			
 				for (int i=0; i<WIDTH*HEIGHT; ++i){
 					pOutFile.write( (char *)& fin[i], 1);
-					}
+				}
 			++num_colores;
+			//Se vuelve a poner a 0
 			memset(&fin[0], 0, WIDTH*HEIGHT);
 		}
 	}else{
@@ -324,8 +330,9 @@ void MaxMin(string ImageFile, string OutputFile){
 		for (int i=0; i<matrix_size; ++i){
 			InFile.read((char*)& imgdata[i], 1);
 		}
-		
-		for (int i =0; i < (HEIGHT*WIDTH) ; ++i){
+		InFile.close();
+		int i =0;
+		for (; i < (matrix_size/3) ; ++i){
 			//Hay un nuevo maximo
 			if (colores[0] < imgdata[i]){
 				colores[0]=imgdata[i];
@@ -335,7 +342,7 @@ void MaxMin(string ImageFile, string OutputFile){
 				colores[1]=imgdata[i];
 			}
 		}
-		for (int i =HEIGHT*WIDTH; i< (HEIGHT*WIDTH); ++i){
+		for (; i< ((matrix_size*2)/3); ++i){
 			if (colores[2] < imgdata[i]){
 				colores[2]=imgdata[i];
 			}
@@ -343,7 +350,7 @@ void MaxMin(string ImageFile, string OutputFile){
 				colores[3]=imgdata[i];
 			}
 		}
-		for (int i =HEIGHT*WIDTH*2; i<(HEIGHT*WIDTH); ++i){
+		for (; i<(matrix_size); ++i){
 			if (colores[4] < imgdata[i]){
 				colores[4]=imgdata[i];
 			}
@@ -353,17 +360,17 @@ void MaxMin(string ImageFile, string OutputFile){
 		}
 		ofstream pOutFile;
     	pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
-    	if(!pOutFile) { 
-    		cerr << "No se puede abrir el fichero "<<OutputFile<<"Para escribir"<<endl; 
-   		} 
+    	if(pOutFile) { 
 		for (int i=0; i<6; ++i){
    			pOutFile<<colores[i]; 
    			if(i<5){
    				pOutFile<<" ";
 			}
 		}
-		InFile.close();
-   		pOutFile.close(); 
+    		}else{
+		cerr<< "Error al abrir el fichero: "<<OutputFile<<" para escritura"<<endl;
+		}
+		pOutFile.close(); 
 	}else{
 	 	cerr<<"Error al abrir el fichero "<<ImageFile<<endl;
 	}

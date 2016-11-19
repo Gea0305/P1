@@ -156,7 +156,7 @@ int main(int argc, char ** argv){
     }
 	return 0;
 }
-
+//Funcion que lee las dimensiones de la matriz y las almacena en las variables globales correspondientes
 void leer_dimensiones(string fileName){
 	ifstream InFile;
 	InFile.open(fileName, ios::in | ios::binary); 
@@ -304,10 +304,9 @@ void rotacion(string ImageFile, string OutputFile, double gr){
 					++contador;	
 				}
 			}
-			
-				for (int i=0; i<WIDTH*HEIGHT; ++i){
-					pOutFile.write( (char *)& fin[i], 1);
-				}
+			for (int i=0; i<WIDTH*HEIGHT; ++i){
+				pOutFile.write( (char *)& fin[i], 1);
+			}
 			++num_colores;
 			//Se vuelve a poner a 0
 			memset(&fin[0], 0, WIDTH*HEIGHT);
@@ -322,10 +321,9 @@ void MaxMin(string ImageFile, string OutputFile){
 	ifstream InFile;
 	InFile.open(ImageFile, ios::in | ios::binary);
  	if (InFile.is_open()) {
-		//leer_dimenciones(img); 
 		int colores[]= {0,255,0,255,0,255} ;
-		//No leemos los bytes que indican el tamaÃ±o de la matriz
 		vector<unsigned char> imgdata(matrix_size); //Vector para volcar la matriz recibida
+		//No leemos los bytes que indican el tamaÃ±o de la matriz
 		InFile.seekg(8);
 		for (int i=0; i<matrix_size; ++i){
 			InFile.read((char*)& imgdata[i], 1);
@@ -337,7 +335,7 @@ void MaxMin(string ImageFile, string OutputFile){
 			if (colores[0] < imgdata[i]){
 				colores[0]=imgdata[i];
 			}
-			//Hay un nuevo minio
+			//Hay un nuevo minimo
 			if (colores[1] > imgdata[i]){
 				colores[1]=imgdata[i];
 			}

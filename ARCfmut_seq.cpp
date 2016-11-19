@@ -266,13 +266,10 @@ void rotacion(string ImageFile, string OutputFile, double gr){
 	ifstream InFile;
 	InFile.open(ImageFile, ios::in | ios::binary);
 	if (InFile.is_open()) {
-		//Creamos el ofstream, para escribir en el fichero de salida
-       	ofstream pOutFile;
-	pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);	
-       	if(!pOutFile) { 
-    		cout << "Error al abrir el fichero "<<OutputFile<<" para escribir"<<endl;  
-   		} 
-   		//Se escribe la cabecera 
+	 	ofstream pOutFile;
+		pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
+    	if(pOutFile.is_open()){
+		//Se escribe la cabecera 
    		unsigned char cabecera[8];
    		InFile.read((char*)& cabecera, 8);
    		pOutFile.write( (char *)& cabecera, 8);	
@@ -281,39 +278,42 @@ void rotacion(string ImageFile, string OutputFile, double gr){
 			for (int i=0; i<(matrix_size); ++i){
 				InFile.read((char*)& imgdata[i], 1);
 			}
-			InFile.close();
-		vector<unsigned char> fin(WIDTH*HEIGHT);;
+			
+		InFile.close();
+		vector<unsigned char> fin(matrix_size);
 		double xc,yc,xi,yi;
 		int xf,yf;
-		
 		//Calculamos el centro de la imagen
 		xc=WIDTH/2;
 		yc=HEIGHT/2;
-		int num_colores= 0;
 		int contador=0;
-		while(num_colores<3){
-			for (int j=0; j<HEIGHT; ++j){
-				for(int i=0; i<WIDTH; ++i){
+		int offset=0;
+		for(int k=0; k<3; ++k){
+			for (int j=0; j<HEIGHT; j++){
+				for(int i=0; i<WIDTH; i++){
 					xi=i-xc;
 					yi=j-yc;
 					xf= ceil( cos((gr*M_PI)/180)*xi - sin((gr*M_PI)/180)*yi +xc);
 					yf= ceil( sin((gr*M_PI)/180)*xi + cos((gr*M_PI)/180)*yi +yc);
 					if(yf<HEIGHT && yf>=0 && xf<WIDTH && xf>=0){
-						fin[yf*WIDTH + xf]= imgdata[contador];
+						fin[(yf*WIDTH + xf)+offset]= imgdata[contador];
+						
 					}
-					++contador;	
+					contador++;
 				}
 			}
-			for (int i=0; i<WIDTH*HEIGHT; ++i){
-				pOutFile.write( (char *)& fin[i], 1);
-			}
-			++num_colores;
-			//Se vuelve a poner a 0
-			memset(&fin[0], 0, WIDTH*HEIGHT);
+			offset+=HEIGHT*WIDTH;
 		}
+      
+    		for(int i=0; i<(matrix_size); ++i){
+    			pOutFile.write((char*)& fin[i], 1);
+	   		}
+	   		pOutFile.close();
+	   	}else{
+			cerr<<"Error al abrir "<<OutputFile<<endl;
+	   	}
 	}else{
 		cerr<<"Error al abrir "<<ImageFile<<endl;
-		return;	
 	} 
 }
 

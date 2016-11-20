@@ -357,31 +357,59 @@ void MaxMin(string ImageFile, string OutputFile){
 		for (int i=0; i<(matrix_size+8); ++i){
 			InFile.read((char*)& imgdata[i], 1);
 		}
-		
-		for (int i =0; i < (HEIGHT*WIDTH) ; i++){
-			//Hay un nuevo maximo
-			if (colores[0] < imgdata[i]){
-				colores[0]=imgdata[i];
+		int tid, nthreads;
+		int i;
+		#pragma omp parallel  shared(imgdata,HEIGHT,WIDTH, colores) private(i)
+		{
+			tid = omp_get_thread_num();
+			if (tid == 0){
+			 	nthreads = omp_get_num_threads();
+			 	printf("Starting matrix multiple example with %d threads\n",nthreads);
 			}
-			//Hay un nuevo minio
-			if (colores[1] > imgdata[i]){
-				colores[1]=imgdata[i];
+			#pragma omp for schedule (static)
+			for (i=0; i < (matrix_size/3) ; ++i){
+				//Hay un nuevo maximo
+				if (colores[0] < imgdata[i]){
+					//cout<<"im thread "<<tid<<"new  MAX value of colores[0]: "<<imgdata[i]<<endl;
+					/*Añadimos una seccion critica para evitar condiciones de carrera en la variable compartida colores.
+					Ademas se da un nombre a cada seccion critica para que solo a afecte a las secciones con dicho nombre,
+					si no lo nombraramos, un thread se quedaria esperando por cualquier seccion critica*/
+					#pragma omp critical (max_red)
+					colores[0]=imgdata[i];
+					}
+				//Hay un nuevo minio
+				if (colores[1] > imgdata[i]){
+					//cout<<"im thread "<<tid<<"new  MIN value of colores[1]: "<<imgdata[i]<<endl;
+					#pragma omp critical (min_rojo)
+					colores[1]=imgdata[i];
+				}
 			}
-		}
-		for (int i =HEIGHT*WIDTH; i< (HEIGHT*WIDTH); i++){
-			if (colores[2] < imgdata[i]){
-				colores[2]=imgdata[i];
+
+			#pragma omp for schedule (static)
+			for (i=(matrix_size/3) ; i< ((matrix_size*2)/3); ++i){
+				if (colores[2] < imgdata[i]){
+					//cout<<"im thread "<<tid<<"new  MAX value of colores[2]: "<<imgdata[i]<<endl;
+					#pragma omp critical (max_green)
+					colores[2]=imgdata[i];
+				}
+				if (colores[3] > imgdata[i]){
+					//cout<<"im thread "<<tid<<"new  MIN value of colores[3]: "<<imgdata[i]<<endl;
+					#pragma omp critical (min_green)
+					colores[3]=imgdata[i];
+				}
 			}
-			if (colores[3] > imgdata[i]){
-				colores[3]=imgdata[i];
-			}
-		}
-		for (int i =HEIGHT*WIDTH*2; i<(HEIGHT*WIDTH); i++){
-			if (colores[4] < imgdata[i]){
-				colores[4]=imgdata[i];
-			}
-			if (colores[5] > imgdata[i]){
-				colores[5]=imgdata[i];
+			#pragma omp for schedule (static)
+			for (i=((matrix_size*2)/3); i<(matrix_size); ++i){
+				if (colores[4] < imgdata[i]){
+					//cout<<"im thread "<<tid<<"new  MAX value of colores[4]: "<<imgdata[i]<<endl;
+					#pragma omp critical (max_blue)
+					colores[4]=imgdata[i];
+				}
+				if (colores[5] > imgdata[i]){
+					//cout<<"im thread "<<tid<<"new  MIN value of colores[5]: "<<imgdata[i]<<endl;
+					#pragma omp critical (min_blue)
+					colores[5]=imgdata[i];
+				}
 			}
 		}
 		ofstream pOutFile;

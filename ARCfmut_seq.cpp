@@ -339,6 +339,7 @@ void MaxMin(string ImageFile, string OutputFile){
 				if(i<5){
 					pOutFile<<" ";
 				}
+			}
     		}else{
 		cerr<< "Error al abrir el fichero: "<<OutputFile<<" para escritura"<<endl;
 		}

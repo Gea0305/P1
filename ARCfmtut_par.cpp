@@ -195,12 +195,17 @@ void histograma(string ImageFile, string OutputFile, int t){
 		InFile.seekg(8);
 		InFile.read((char*) &imgdata[0], matrix_size);
 		InFile.close();
-		for (i=0; i<(HEIGHT*WIDTH); ++i){ //Bucle para calcular el gris resultante de cada pixel
-			grey=(imgdata[i]*0.3+imgdata[i+HEIGHT*WIDTH]*0.59+imgdata[i+HEIGHT*WIDTH*2]*0.11);
-			for (j=0, found=false; j<t && !found; ++j){ //Bucle para encontrar el tramo adecuado en el histograma
-				if (grey<((j+1)*tram)){ //Comprobamos desde el primer tramo hasta que entre en uno
-					histogram[j]+=1;
-					found=true; //Cuando encontramos su tramo no volvemos a ejecutar el for
+		#pragma omp parallel shared(t, tram, histogram, imgdata, HEIGHT, WIDTH) private(i, j, found, grey)
+		{
+			#pragma omp for schedule(guided)
+			for (i=0; i<(HEIGHT*WIDTH); ++i){ //Bucle para calcular el gris resultante de cada pixel
+				grey=(imgdata[i]*0.3+imgdata[i+HEIGHT*WIDTH]*0.59+imgdata[i+HEIGHT*WIDTH*2]*0.11);
+				for (j=0, found=false; j<t && !found; ++j){ //Bucle para encontrar el tramo adecuado en el histograma
+					if (grey<((j+1)*tram)){ //Comprobamos desde el primer tramo hasta que entre en uno
+						#pragma omp atomic
+						histogram[j]+=1;
+						found=true; //Cuando encontramos su tramo no volvemos a ejecutar el for
+					}
 				}
 			}
 		}

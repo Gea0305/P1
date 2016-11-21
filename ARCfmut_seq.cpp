@@ -224,9 +224,9 @@ void aplicar_mascara(string ImageFile, string OutputFile, string MaskFile){
 	ifstream InMascara;
 	InMascara.open(MaskFile, ios::in | ios::binary); 
 	if (InImagen.is_open()) {
-        if (InMascara.is_open()) {
-	    	streampos fileSize= matrix_size+8;
- 			vector<unsigned char> imgdata(fileSize); //Vector para volcar la matriz recibida
+		if (InMascara.is_open()) {
+	    		streampos fileSize= matrix_size+8;
+			vector<unsigned char> imgdata(fileSize); //Vector para volcar la matriz recibida
 			InImagen.read((char*) &imgdata[0], fileSize);
 			InImagen.close();
 			vector<unsigned char> mskdata(fileSize); //Vector para volcar la mascara recibida
@@ -235,8 +235,8 @@ void aplicar_mascara(string ImageFile, string OutputFile, string MaskFile){
 			for(int i=8; i<(matrix_size+8); ++i){	//Aplicacion de la mascara
 				imgdata[i]*=mskdata[i];
 			}
-          	//Escritura en el fichero de salida
-         	ofstream pOutFile;
+          		//Escritura en el fichero de salida
+         		ofstream pOutFile;
 			pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);	
 	       	if(pOutFile.is_open()) {
 				pOutFile.write((char*)& imgdata[0], fileSize);	
@@ -290,7 +290,7 @@ void rotacion(string ImageFile, string OutputFile, double gr){
 			}
 			offset+=HEIGHT*WIDTH;
 		}
-    	pOutFile.write((char*)& fin[0], matrix_size);
+		pOutFile.write((char*)& fin[0], matrix_size);
 	   	pOutFile.close();
 	   	}else{
 			cerr<<"Error al abrir "<<OutputFile<<endl;
@@ -308,7 +308,7 @@ void MaxMin(string ImageFile, string OutputFile){
 		vector<unsigned char> imgdata(matrix_size); //Vector para volcar la matriz recibida
 		//No leemos los bytes que indican el tamaÃ±o de la matriz
 		InFile.seekg(8);
-		InImagen.read((char*) &imgdata[0], matrix_size);
+		InFile.read((char*) &imgdata[0], matrix_size);
 		InFile.close();
 		int i =0;
 		for (; i < (matrix_size/3) ; ++i){
@@ -338,14 +338,14 @@ void MaxMin(string ImageFile, string OutputFile){
 			}
 		}
 		ofstream pOutFile;
-    	pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
-    	if(pOutFile) { 
-		for (int i=0; i<6; ++i){
-   			pOutFile<<colores[i]; 
-   			if(i<5){
-   				pOutFile<<" ";
+		pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
+		if(pOutFile) { 
+			for (int i=0; i<6; ++i){
+				pOutFile<<colores[i]; 
+				if(i<5){
+					pOutFile<<" ";
+				}
 			}
-		}
     		}else{
 		cerr<< "Error al abrir el fichero: "<<OutputFile<<" para escritura"<<endl;
 		}
@@ -410,7 +410,7 @@ void aplicar_filtro(string ImageFile, string OutputFile, double r){
 		ofstream OutFile;
 		OutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
 		if(OutFile.is_open()) {
-			pOutFile.write((char*)& imgdata[0], fileSize);
+			OutFile.write((char*)& imgdata[0], fileSize);
 			OutFile.close();
 		}
 		else{

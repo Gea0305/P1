@@ -229,15 +229,12 @@ void aplicar_mascara(string ImageFile, string OutputFile, string MaskFile){
 	InMascara.open(MaskFile, ios::in | ios::binary); 
 	if (InImagen.is_open()) {
         if (InMascara.is_open()) {
-			vector<unsigned char> imgdata(matrix_size+8); //Vector para volcar la matriz recibida
-			for (int i=0; i<(matrix_size+8); ++i){
-				InImagen.read((char*)& imgdata[i], 1);
-			}
+			streampos fileSize= matrix_size+8;
+			vector<unsigned char> imgdata(fileSize); //Vector para volcar la matriz recibida
+			InImagen.read((char*) &imgdata[0], fileSize);
 			InImagen.close();
-			vector<unsigned char> mskdata(matrix_size+8); //Vector para volcar la matriz recibida
-			for (int i=0; i<(matrix_size+8); ++i){
-				InMascara.read((char*)& mskdata[i], 1);
-			}
+			vector<unsigned char> mskdata(fileSize); //Vector para volcar la mascara recibida
+			InMascara.read((char*) &mskdata[0], fileSize);
 			InMascara.close();
 			//int chunk=2;
 			int tid, nthreads;

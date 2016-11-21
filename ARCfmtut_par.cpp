@@ -25,12 +25,9 @@ void rotacion(string, string, double);
 void aplicar_filtro(string, string, double);
 int HEIGHT;
 int WIDTH;
-int matrix_size; //TamaÃ±o de la matriz sin contar con los bytes que indican el tamaÃ±o
+int matrix_size; //Variable que almacena el tamaño de la imagen, sin contar con la cabecera
 
-//argc= numero de argumentos especificados por linea de comandos
-//argv[i] contiene el contenido del argumento i
 int main(int argc, char ** argv){
-	cout<<"Hola"<<endl;
 	int cont=1;
 	int num_funcion=-1;
 	int num_histograma=-1;
@@ -39,7 +36,7 @@ int main(int argc, char ** argv){
 	string in_file="";
 	string out_file="";
 	string path_mascara="";    
-	while ((cont < argc) && (argv[cont][0]=='-')) {
+	while ((cont < argc) && (argv[cont][0]=='-')) { //Bucle para almacenar los distintos argumentos, que pueden llegar en cualquier orden
         string sw = argv[cont];
         if (sw=="-u") {
             cont++;
@@ -88,7 +85,7 @@ int main(int argc, char ** argv){
         }
         cont++;
     }
-    //COmrpobaciones que son comunes para todas las funciones
+    //Comrpobaciones que son comunes para todas las funciones
     if(in_file == ""){
     	cerr<<"Falta introducir -i input_file"<<endl;
     	return 1;
@@ -109,12 +106,9 @@ int main(int argc, char ** argv){
     			cerr <<"Numero de argumentos no valido"<<endl;
     			return 1;
     		}
-    		cout<<"Funcion histograma blanco y negro"<<endl;
-			histograma(in_file, out_file, num_histograma);
+    		histograma(in_file, out_file, num_histograma);
     		break;
-		case(1):
-			cout<<"Funcion maximos y minimos"<<endl;
-			MaxMin(in_file, out_file);
+		case(1):MaxMin(in_file, out_file);
 			break;
 		case(2):
 			if(path_mascara==""){
@@ -124,8 +118,7 @@ int main(int argc, char ** argv){
 			if(argc!=9){
     			cerr <<"Numero de argumentos no valido"<<endl;
     			return 1;
-    		}
-			cout<<"Funcion mascara"<<endl;
+    			}
 			aplicar_mascara(in_file, out_file, path_mascara);
 			break;
 		case(3):
@@ -136,8 +129,7 @@ int main(int argc, char ** argv){
 			if(argc!=9){
     			cerr <<"Numero de argumentos no valido"<<endl;
     			return 1;
-    		}
-			cout<<"Rotacion de la imagen"<<endl;
+    			}
 			rotacion(in_file, out_file, num_angulo);
 			break;
 		case(4):
@@ -148,8 +140,7 @@ int main(int argc, char ** argv){
 			if(argc!=9){
     			cerr <<"Numero de argumentos no valido"<<endl;
     			return 1;
-    		}
-			cout<<"Funcion de filtro blanco y negro selectivo"<<endl;
+    			}
 			aplicar_filtro(in_file, out_file, num_radio);
 			break;
 		default:
@@ -160,24 +151,17 @@ int main(int argc, char ** argv){
 
 void leer_dimensiones(string fileName){
 	ifstream InFile;
-	InFile.open(fileName, ios::in | ios::binary); // open fileName and read as binary.
-    if (InFile.is_open()) {
-		//Donde almacenamos los datos tienen que ser unsigned char, ya que van desde 0 a 255    
+	InFile.open(fileName, ios::in | ios::binary); 
+    if (InFile.is_open()) {   
 		unsigned char heightData[4]; 
 		unsigned char widthData[4]; 
-		InFile.seekg(0, ios::beg); //pos filter at beginning of image file. 
-		//Leo los 4 primeros bytes
-		InFile.read( (char *)& heightData, 4 ); //Lees la altura
-		//Lee 2000 0000, como esta en LEndian seria 0000 0020, que equivale a 32.En las posiciones el 0 seria el 3, el 1 el 2 y el 3 el 0
-		//Lo cambio a BIGENDIAN
-		HEIGHT += (int)heightData[0] | ((int)heightData[1]<<8) | ((int)heightData[2]<<16) | ((int)heightData[3]<<24);
-		InFile.read( (char *)& widthData, 4); 
-		WIDTH += (int)widthData[0] | ((int)widthData[1]<<8) | ((int)widthData[2]<<16) | ((int)widthData[3]<<24);
-		matrix_size=  (HEIGHT*WIDTH)*3;
+		InFile.seekg(0, ios::beg);  
+		InFile.read( (char *)& heightData, 4 ); //Se leen los bytes de la altura
+		HEIGHT += (int)heightData[0] | ((int)heightData[1]<<8) | ((int)heightData[2]<<16) | ((int)heightData[3]<<24); //Se convierten de little endian a big endian
+		InFile.read( (char *)& widthData, 4); //Se leen los bytes de la anchura
+		WIDTH += (int)widthData[0] | ((int)widthData[1]<<8) | ((int)widthData[2]<<16) | ((int)widthData[3]<<24); //Se convierten de little endian a big endian
+		matrix_size=  (HEIGHT*WIDTH)*3; //El tamaño de la matriz sera de 3 matrices de tamaño HEIGHT*WIDHT, RGB
 		InFile.close();
-	  	cout<<"Width: "<<WIDTH<<endl;
-	 	cout<<"Height: "<<HEIGHT<<endl;
-		cout<<"Matrix size: "<< matrix_size<<endl;
 	}else{
 		cerr <<"Error opening file";
 	} 
@@ -241,29 +225,18 @@ void aplicar_mascara(string ImageFile, string OutputFile, string MaskFile){
 			vector<unsigned char> mskdata(fileSize); //Vector para volcar la mascara recibida
 			InMascara.read((char*) &mskdata[0], fileSize);
 			InMascara.close();
-			//int chunk=2;
-			int tid, nthreads;
-			//dont need to define the number of threads the program will define them based on the number of cores on the machine
-			#pragma omp parallel  shared(imgdata,mskdata,matrix_size,nthreads) private(tid)
+			#pragma omp parallel  shared(imgdata,mskdata,matrix_size) 
 			{
-				tid = omp_get_thread_num();
-				if (tid == 0){
-   					nthreads = omp_get_num_threads();
-    				printf("Starting matrix multiple example with %d threads\n",nthreads);
-				}
 				#pragma omp for schedule (static)
-				for(int i=8; i<(matrix_size+8); ++i){
+				for(int i=8; i<(fileSize); ++i){
 					imgdata[i]*=mskdata[i];
 				}
 			}
-          	//Creamos el ofstream, para escribir en el fichero de salida
-         	ofstream pOutFile;
+          		ofstream pOutFile; //Creamos el ofstream, para escribir en el fichero de salida
 			pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);	
-	       	if(pOutFile.is_open()) {
-	       		for(int i=0; i<(matrix_size+8); ++i){
-	       			pOutFile.write((char*)& imgdata[i], 1);
-	       		}
-				pOutFile.close();
+	       		if(pOutFile.is_open()) {
+	       		pOutFile.write((char*)& imgdata[0], fileSize);	//Se escribe la matriz resultante en el fichero de salida
+			pOutFile.close();
    			}else{
     			cout << "Error al abrir el fichero "<<OutputFile<<" para escribir"<<endl;  
    			}
@@ -325,85 +298,61 @@ void rotacion(string ImageFile, string OutputFile, double gr){
 void MaxMin(string ImageFile, string OutputFile){
 	ifstream InFile;
 	InFile.open(ImageFile, ios::in | ios::binary);
- 	if (InFile.is_open()) {
-		//leer_dimenciones(img); 
+ 	if (InFile.is_open()) { 
 		int colores[]= {0,255,0,255,0,255} ;
-		//No leemos los bytes que indican el tamaÃ±o de la matriz
 		vector<unsigned char> imgdata(matrix_size); //Vector para volcar la matriz recibida
-		InFile.seekg(8);
-		InFile.read((char*) &imgdata[0], matrix_size);
-		int tid, nthreads;
+		InFile.seekg(8); //No se almacenan los bytes que indican el tamaño de la matriz
+		InFile.read((char*) &imgdata[0], matrix_size); //Se vuelva la imagen en el vector
+		InFile.close();
 		#pragma omp parallel  shared(imgdata,HEIGHT,WIDTH, colores)
 		{
-			tid = omp_get_thread_num();
-			if (tid == 0){
-			 	nthreads = omp_get_num_threads();
-			 	printf("Starting matrix multiple example with %d threads\n",nthreads);
-			}
 			#pragma omp for schedule (static)
-			for (int i=0; i < WIDTH*HEIGHT ; ++i){
-				//Hay un nuevo maximo
+			for (int i=0; i < WIDTH*HEIGHT ; ++i){ //Para el color rojo
 				#pragma omp critical (max_red)
-				if (colores[0] < imgdata[i]){
-					//cout<<"im thread "<<tid<<"new  MAX value of colores[0]: "<<imgdata[i]<<endl;
-					/*Añadimos una seccion critica para evitar condiciones de carrera en la variable compartida colores.
-					Ademas se da un nombre a cada seccion critica para que solo a afecte a las secciones con dicho nombre,
-					si no lo nombraramos, un thread se quedaria esperando por cualquier seccion critica*/
-					
+				if (colores[0] < imgdata[i]){ //Hay un nuevo maximo rojo
 					colores[0]=imgdata[i];
 				}
-				//Hay un nuevo minio	
 				#pragma omp critical (min_rojo)
-				if (colores[1] > imgdata[i]){
-					//cout<<"im thread "<<tid<<"new  MIN value of colores[1]: "<<imgdata[i]<<endl;
-				
+				if (colores[1] > imgdata[i]){ //Hay un nuevo minimo rojo	
 					colores[1]=imgdata[i];
 				}
 			}
 			#pragma omp for schedule (static)
-			for (int i= WIDTH*HEIGHT; i < WIDTH*HEIGHT*2; ++i){
+			for (int i= WIDTH*HEIGHT; i < WIDTH*HEIGHT*2; ++i){ //Para el color verde
 				#pragma omp critical (max_green)
-				if (colores[2] < imgdata[i]){
-					//cout<<"im thread "<<tid<<"new  MAX value of colores[2]: "<<imgdata[i]<<endl;
-					
+				if (colores[2] < imgdata[i]){ //Hay un nuevo maximo verde
 					colores[2]=imgdata[i];
 				}
 				#pragma omp critical (min_green)
-				if (colores[3] > imgdata[i]){
-					//cout<<"im thread "<<tid<<"new  MIN value of colores[3]: "<<imgdata[i]<<endl;
-					
+				if (colores[3] > imgdata[i]){ //Hay un nuevo minimo verde
 					colores[3]=imgdata[i];
 				}
 			}
 			#pragma omp for schedule (static)
-			for (int i=WIDTH*HEIGHT*2; i < WIDTH*HEIGHT*3; ++i){
+			for (int i=WIDTH*HEIGHT*2; i < WIDTH*HEIGHT*3; ++i){ //Para el color azul
 				#pragma omp critical (max_blue)
-				if (colores[4] < imgdata[i]){
-					//cout<<"im thread "<<tid<<"new  MAX value of colores[4]: "<<imgdata[i]<<endl;
-					
+				if (colores[4] < imgdata[i]){ //Hay un nuevo maximo azul
 					colores[4]=imgdata[i];
 				}
 				#pragma omp critical (min_blue)
-				if (colores[5] > imgdata[i]){
-					//cout<<"im thread "<<tid<<"new  MIN value of colores[5]: "<<imgdata[i]<<endl;
-					
+				if (colores[5] > imgdata[i]){ //Hay un nuevo minimo azul
 					colores[5]=imgdata[i];
 				}
 			}
 		}
 		ofstream pOutFile;
-    		pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
-    		if(!pOutFile) { 
-    			cerr << "No se puede abrir el fichero "<<OutputFile<<"Para escribir"<<endl; 
-   		} 
-		for (int i=0; i<6; i++){
-   			pOutFile<<colores[i]; 
-   			if(i<5){
-   				pOutFile<<" ";
+		pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
+		if(pOutFile) { 
+			for (int i=0; i<6; i++){ //Se escriben los resultados en el fichero de salida
+				pOutFile<<colores[i];
+				if(i<5){
+					pOutFile<<" ";
+				}
 			}
+    		}else{
+		cerr<< "Error al abrir el fichero: "<<OutputFile<<" para escritura"<<endl;
 		}
-		InFile.close();
-   		pOutFile.close(); 
+		pOutFile.close();
 	}else{
 	 	cerr<<"Error al abrir el fichero "<<ImageFile<<endl;
 	}

@@ -27,7 +27,6 @@ int WIDTH;
 int matrix_size; 
 
 int main(int argc, char ** argv){
-	cout<<"Hola"<<endl;
 	int cont=1;
 	int num_funcion=-1;
 	int num_histograma=-1;
@@ -107,11 +106,9 @@ int main(int argc, char ** argv){
     			cerr <<"Numero de argumentos no valido"<<endl;
     			return 1;
     		}
-    		cout<<"Funcion histograma blanco y negro"<<endl;
 			histograma(in_file, out_file, num_histograma);
     		break;
 		case(1):
-			cout<<"Funcion maximos y minimos"<<endl;
 			MaxMin(in_file, out_file);
 			break;
 		case(2):
@@ -123,7 +120,6 @@ int main(int argc, char ** argv){
     			cerr <<"Numero de argumentos no valido"<<endl;
     			return 1;
     		}
-			cout<<"Funcion mascara"<<endl;
 			aplicar_mascara(in_file, out_file, path_mascara);
 			break;
 		case(3):
@@ -135,7 +131,6 @@ int main(int argc, char ** argv){
     			cerr <<"Numero de argumentos no valido"<<endl;
     			return 1;
     		}
-			cout<<"Rotacion de la imagen"<<endl;
 			rotacion(in_file, out_file, num_angulo);
 			break;
 		case(4):
@@ -147,7 +142,6 @@ int main(int argc, char ** argv){
     			cerr <<"Numero de argumentos no valido"<<endl;
     			return 1;
     		}
-			cout<<"Funcion de filtro blanco y negro selectivo"<<endl;
 			aplicar_filtro(in_file, out_file, num_radio);
 			break;
 		default:
@@ -171,9 +165,6 @@ void leer_dimensiones(string fileName){
 		WIDTH += (int)widthData[0] | ((int)widthData[1]<<8) | ((int)widthData[2]<<16) | ((int)widthData[3]<<24);
 		matrix_size=  (HEIGHT*WIDTH)*3;
 		InFile.close();
-	  	cout<<"Width: "<<WIDTH<<endl;
-	 	cout<<"Height: "<<HEIGHT<<endl;
-		cout<<"Matrix size: "<< matrix_size<<endl;
 	}else{
 		cerr <<"Error opening file";
 	} 
@@ -242,7 +233,7 @@ void aplicar_mascara(string ImageFile, string OutputFile, string MaskFile){
 				pOutFile.write((char*)& imgdata[0], fileSize);	
 	       		pOutFile.close();
    			}else{
-    			cout << "Error al abrir el fichero "<<OutputFile<<" para escribir"<<endl;  
+    			cerr << "Error al abrir el fichero "<<OutputFile<<" para escribir"<<endl;  
    			}
 		}else{
 			cerr<<"Error opening "<<MaskFile<<endl;
@@ -414,7 +405,7 @@ void aplicar_filtro(string ImageFile, string OutputFile, double r){
 			OutFile.close();
 		}
 		else{
-			cout << "Error al abrir el fichero "<<OutputFile<<" para escribir"<<endl;
+			cerr << "Error al abrir el fichero "<<OutputFile<<" para escribir"<<endl;
 		}
 	}
 	else{

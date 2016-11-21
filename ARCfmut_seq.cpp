@@ -223,7 +223,7 @@ void aplicar_mascara(string ImageFile, string OutputFile, string MaskFile){
 			vector<unsigned char> mskdata(fileSize); //Vector para volcar la mascara recibida
 			InMascara.read((char*) &mskdata[0], fileSize);
 			InMascara.close();
-			for(int i=8; i<(matrix_size+8); ++i){	//Aplicacion de la mascara
+			for(int i=8; i<(fileSize); ++i){	//Aplicacion de la mascara
 				imgdata[i]*=mskdata[i];
 			}
           		//Escritura en el fichero de salida

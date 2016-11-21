@@ -381,8 +381,7 @@ void aplicar_filtro(string ImageFile, string OutputFile, double r){
 				for(i=0; i<WIDTH; ++i){
 					p.x= i-centro.x;
 					p.y= j-centro.y;
-					//Si esta fuera del radio, lo cambio de color
-					if (p.x * p.x + p.y * p.y > r*r){
+					if (p.x * p.x + p.y * p.y > r*r){ //Si esta fuera del radio, lo cambio de color
 						imgdata[i+j*WIDTH+8] = floor(imgdata[i+j*WIDTH+8]*0.3);	
 						imgdata[i+WIDTH*(j+HEIGHT)+8] = floor(imgdata[i+WIDTH*(j+HEIGHT)+8]*0.59);
 						imgdata[i+WIDTH*(j+HEIGHT*2)+8] = floor(imgdata[i+WIDTH*(j+HEIGHT*2)+8]*0.11);

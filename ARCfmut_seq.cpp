@@ -304,17 +304,14 @@ void rotacion(string ImageFile, string OutputFile, double gr){
 			}
 			offset+=HEIGHT*WIDTH;
 		}
-      
-    		
-    			pOutFile.write((char*)& fin[0], fileSize);
-	   		
-	   		pOutFile.close();
+      	pOutFile.write((char*)& fin[0], fileSize);
+	   	pOutFile.close();
 	   	}else{
 			cerr<<"Error al abrir "<<OutputFile<<endl;
 	   	}
 	}else{
 		cerr<<"Error al abrir "<<ImageFile<<endl;
-	}  
+	} 
 }
 
 void MaxMin(string ImageFile, string OutputFile){

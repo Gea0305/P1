@@ -1,3 +1,11 @@
+/* 
+Practica 1 Arquitectura de Computadores
+Autores:
+-Gonzalo Lencina
+-Alejandro Blanco
+-Alfonso Martinez
+-Jorge Navarro
+*/
 #include <string>
 #include <iostream>
 #include <cstdio>

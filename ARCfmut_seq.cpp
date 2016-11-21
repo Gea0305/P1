@@ -295,7 +295,7 @@ void MaxMin(string ImageFile, string OutputFile){
 	ifstream InFile;
 	InFile.open(ImageFile, ios::in | ios::binary);
  	if (InFile.is_open()) {
-		int colores[]= {0, ,255, ,0, ,255, ,0, ,255} ;
+		int colores[]= {0,255,0,255,0,255} ;
 		vector<unsigned char> imgdata(matrix_size); //Vector para volcar la matriz recibida
 		//No leemos los bytes que indican el tamaÃ±o de la matriz
 		InFile.seekg(8);
@@ -308,30 +308,34 @@ void MaxMin(string ImageFile, string OutputFile){
 				colores[0]=imgdata[i];
 			}
 			//Hay un nuevo minimo
-			if (colores[2] > imgdata[i]){
-				colores[2]=imgdata[i];
+			if (colores[1] > imgdata[i]){
+				colores[1]=imgdata[i];
 			}
 		}
 		for (; i < WIDTH*HEIGHT*2; ++i){
+			if (colores[2] < imgdata[i]){
+				colores[2]=imgdata[i];
+			}
+			if (colores[3] > imgdata[i]){
+				colores[3]=imgdata[i];
+			}
+		}
+		for (; i < matrix_size; ++i){
 			if (colores[4] < imgdata[i]){
 				colores[4]=imgdata[i];
 			}
-			if (colores[6] > imgdata[i]){
-				colores[6]=imgdata[i];
-			}
-		}
-		for (; i < WIDTH*HEIGHT*3; ++i){
-			if (colores[8] < imgdata[i]){
-				colores[8]=imgdata[i];
-			}
-			if (colores[10] > imgdata[i]){
-				colores[10]=imgdata[i];
+			if (colores[5] > imgdata[i]){
+				colores[5]=imgdata[i];
 			}
 		}
 		ofstream pOutFile;
 		pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
 		if(pOutFile) { 
-			pOutFile.write((char*)& colores[0], 11);
+			for (int i=0; i<6; i++){
+				pOutFile<<colores[i];
+				if(i<5){
+					pOutFile<<" ";
+				}
     		}else{
 		cerr<< "Error al abrir el fichero: "<<OutputFile<<" para escritura"<<endl;
 		}

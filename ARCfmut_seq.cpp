@@ -223,37 +223,31 @@ void histograma(string ImageFile, string OutputFile, int t){
 }
 
 void aplicar_mascara(string ImageFile, string OutputFile, string MaskFile){
-	ifstream InImagen;
+		ifstream InImagen;
 	InImagen.open(ImageFile, ios::in | ios::binary); 
 	ifstream InMascara;
 	InMascara.open(MaskFile, ios::in | ios::binary); 
 	if (InImagen.is_open()) {
         if (InMascara.is_open()) {
-			vector<unsigned char> imgdata(matrix_size+8); //Vector para volcar la matriz recibida
-			for (int i=0; i<(matrix_size+8); ++i){
-				InImagen.read((char*)& imgdata[i], 1);
-			}
+ 			vector<unsigned char> imgdata(matrix_size+8); //Vector para volcar la matriz recibida
+			InImagen.read((char*)& imgdata, matrix_size+8);
 			InImagen.close();
 			vector<unsigned char> mskdata(matrix_size+8); //Vector para volcar la mascara recibida
-			for (int i=0; i<(matrix_size+8); ++i){
-				InMascara.read((char*)& mskdata[i], 1);
-			}
+			InImagen.read((char*)& mskdata, matrix_size+8);
 			InMascara.close();
-			
 			for(int i=8; i<(matrix_size+8); ++i){	//Aplicacion de la mascara
-				imgdata[i]*=mskdata[i];
-			}
+					imgdata[i]*=mskdata[i];
+				}
           	//Escritura en el fichero de salida
          	ofstream pOutFile;
-		pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);	
+			pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);	
 	       	if(pOutFile.is_open()) {
-	       		for(int i=0; i<(matrix_size+8); ++i){
-	       			pOutFile.write((char*)& imgdata[i], 1);
-	       		}
-				pOutFile.close();
+	       		pOutFile.write((char*)& imgdata, matrix_size+8);
+	       		pOutFile.close();
    			}else{
     			cout << "Error al abrir el fichero "<<OutputFile<<" para escribir"<<endl;  
    			}
+   			
 		}else{
 			cerr<<"Error opening "<<MaskFile<<endl;
 		}

@@ -26,7 +26,6 @@ int HEIGHT;
 int WIDTH;
 int matrix_size; 
 
-
 int main(int argc, char ** argv){
 	cout<<"Hola"<<endl;
 	int cont=1;
@@ -167,8 +166,7 @@ void leer_dimensiones(string fileName){
 		InFile.seekg(0, ios::beg);  
 		//Leo los 4 primeros bytes
 		InFile.read( (char *)& heightData, 4 ); 
-		
-   	        HEIGHT += (int)heightData[0] | ((int)heightData[1]<<8) | ((int)heightData[2]<<16) | ((int)heightData[3]<<24);
+		HEIGHT += (int)heightData[0] | ((int)heightData[1]<<8) | ((int)heightData[2]<<16) | ((int)heightData[3]<<24);
 		InFile.read( (char *)& widthData, 4); 
 		WIDTH += (int)widthData[0] | ((int)widthData[1]<<8) | ((int)widthData[2]<<16) | ((int)widthData[3]<<24);
 		matrix_size=  (HEIGHT*WIDTH)*3;
@@ -187,16 +185,16 @@ void histograma(string ImageFile, string OutputFile, int t){
 	if (InFile.is_open()){
 		int i, j;
 		bool found;
-		double grey;
+		double grey, tram=255.0/t;
 		vector<int> histogram(t, 0); //Vector con los tramos inicializado a 0
 		vector<unsigned char> imgdata(matrix_size); //Vector para volcar la matriz reciba
 		InFile.seekg(8);
-		InFile.read((char*)& imgdata, matrix_size);
+		InFile.read((char*) &imgdata[0], matrix_size);
 		InFile.close();
 		for (i=0; i<(HEIGHT*WIDTH); ++i){ //Bucle para calcular el gris resultante de cada pixel
 			grey=(imgdata[i]*0.3+imgdata[i+HEIGHT*WIDTH]*0.59+imgdata[i+HEIGHT*WIDTH*2]*0.11);
 			for (j=0, found=false; j<t && !found; ++j){ //Bucle para encontrar el tramo adecuado en el histograma
-				if (grey<((j+1)*(255.0/t))){ //Comprobamos desde el primer tramo hasta que entre en uno
+				if (grey<((j+1)*tram)){ //Comprobamos desde el primer tramo hasta que entre en uno
 					histogram[j]+=1;
 					found=true; //Cuando encontramos su tramo no volvemos a ejecutar el for
 				}
@@ -227,34 +225,25 @@ void aplicar_mascara(string ImageFile, string OutputFile, string MaskFile){
 	InMascara.open(MaskFile, ios::in | ios::binary); 
 	if (InImagen.is_open()) {
         if (InMascara.is_open()) {
-
 	    	streampos fileSize= matrix_size+8;
  			vector<unsigned char> imgdata(fileSize); //Vector para volcar la matriz recibida
 			InImagen.read((char*) &imgdata[0], fileSize);
 			InImagen.close();
-
 			vector<unsigned char> mskdata(fileSize); //Vector para volcar la mascara recibida
 			InMascara.read((char*) &mskdata[0], fileSize);
 			InMascara.close();
-		
 			for(int i=8; i<(matrix_size+8); ++i){	//Aplicacion de la mascara
-					imgdata[i]*=mskdata[i];
-				}
-			
+				imgdata[i]*=mskdata[i];
+			}
           	//Escritura en el fichero de salida
          	ofstream pOutFile;
 			pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);	
 	       	if(pOutFile.is_open()) {
-	       		
-	       			pOutFile.write((char*)& imgdata[0], fileSize);	
-
-	       		
-	       		
+				pOutFile.write((char*)& imgdata[0], fileSize);	
 	       		pOutFile.close();
    			}else{
     			cout << "Error al abrir el fichero "<<OutputFile<<" para escribir"<<endl;  
    			}
-   			
 		}else{
 			cerr<<"Error opening "<<MaskFile<<endl;
 		}
@@ -274,12 +263,10 @@ void rotacion(string ImageFile, string OutputFile, double gr){
    		unsigned char cabecera[8];
    		InImagen.read((char*)& cabecera[0], 8);
    		pOutFile.write((char *)& cabecera[0], 8);
-
    		streampos fileSize= matrix_size;
 		vector<unsigned char> imgdata(fileSize); //Vector para volcar la matriz recibida
 		InImagen.read((char*) &imgdata[0], fileSize);
 		InImagen.close();
-		
 		vector<unsigned char> fin(matrix_size);
 		double xc,yc,xi,yi;
 		int xf,yf;
@@ -304,11 +291,8 @@ void rotacion(string ImageFile, string OutputFile, double gr){
 			}
 			offset+=HEIGHT*WIDTH;
 		}
-      
-    		
-    			pOutFile.write((char*)& fin[0], fileSize);
-	   		
-	   		pOutFile.close();
+    	pOutFile.write((char*)& fin[0], fileSize);
+	   	pOutFile.close();
 	   	}else{
 			cerr<<"Error al abrir "<<OutputFile<<endl;
 	   	}
@@ -398,7 +382,7 @@ void aplicar_filtro(string ImageFile, string OutputFile, double r){
 				if (p.x * p.x + p.y * p.y > r*r){
 					imgdata[k] = floor(imgdata[k] * 0.3);	
 				}
-				k++;
+				++k;
 			}
 		}
 		//Para el color verde

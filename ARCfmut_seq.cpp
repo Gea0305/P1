@@ -244,19 +244,22 @@ void aplicar_mascara(string ImageFile, string OutputFile, string MaskFile){
 }
 
 void rotacion(string ImageFile, string OutputFile, double gr){
-	ifstream InImagen;
-	InImagen.open(ImageFile, ios::in | ios::binary);
-	if (InImagen.is_open()) {
+	ifstream InFile;
+	InFile.open(ImageFile, ios::in | ios::binary);
+	if (InFile.is_open()) {
 	 	ofstream pOutFile;
 		pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
     	if(pOutFile.is_open()){
-		//Se  lee y escribe la cabecera 
+		//Se escribe la cabecera 
    		unsigned char cabecera[8];
-   		InImagen.read((char*)& cabecera[0], 8);
-   		pOutFile.write((char *)& cabecera[0], 8);
-		vector<unsigned char> imgdata(matrix_size); //Vector para volcar la matriz recibida
-		InImagen.read((char*) &imgdata[0], matrix_size);
-		InImagen.close();
+   		InFile.read((char*)& cabecera, 8);
+   		pOutFile.write( (char *)& cabecera, 8);	
+   		//Se vuelca la matriz en el vector
+		vector<unsigned char> imgdata(matrix_size);
+		InFile.read((char*)& imgdata[0], matrix_size);
+			
+			
+		InFile.close();
 		vector<unsigned char> fin(matrix_size);
 		double xc,yc,xi,yi;
 		int xf,yf;
@@ -266,8 +269,8 @@ void rotacion(string ImageFile, string OutputFile, double gr){
 		int contador=0;
 		int offset=0;
 		for(int k=0; k<3; ++k){
-			for (int j=0; j<HEIGHT; j++){
-				for(int i=0; i<WIDTH; i++){
+			for (int j=0; j<HEIGHT; ++j){
+				for(int i=0; i<WIDTH; ++i){
 					xi=i-xc;
 					yi=j-yc;
 					xf= ceil( cos((gr*M_PI)/180)*xi - sin((gr*M_PI)/180)*yi +xc);
@@ -276,19 +279,19 @@ void rotacion(string ImageFile, string OutputFile, double gr){
 						fin[(yf*WIDTH + xf)+offset]= imgdata[contador];
 						
 					}
-					++contador;
+					contador++;
 				}
 			}
 			offset+=HEIGHT*WIDTH;
 		}
-		pOutFile.write((char*)& fin[0], matrix_size);
-	   	pOutFile.close();
+      		pOutFile.write((char*)& fin[0], matrix_size);
+	   		pOutFile.close();
 	   	}else{
 			cerr<<"Error al abrir "<<OutputFile<<endl;
 	   	}
 	}else{
 		cerr<<"Error al abrir "<<ImageFile<<endl;
-	}  
+}  
 }
 
 void MaxMin(string ImageFile, string OutputFile){

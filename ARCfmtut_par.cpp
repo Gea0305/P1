@@ -325,9 +325,7 @@ void MaxMin(string ImageFile, string OutputFile){
 		//No leemos los bytes que indican el tamaÃ±o de la matriz
 		vector<unsigned char> imgdata(matrix_size); //Vector para volcar la matriz recibida
 		InFile.seekg(8);
-		for (int i=0; i<(matrix_size+8); ++i){
-			InFile.read((char*)& imgdata[i], 1);
-		}
+		InFile.read((char*) &imgdata[0], matrix_size);
 		int tid, nthreads;
 		#pragma omp parallel  shared(imgdata,HEIGHT,WIDTH, colores)
 		{

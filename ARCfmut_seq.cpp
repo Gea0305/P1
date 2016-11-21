@@ -302,7 +302,7 @@ void MaxMin(string ImageFile, string OutputFile){
 		InFile.read((char*) &imgdata[0], matrix_size);
 		InFile.close();
 		int i =0;
-		for (; i < (matrix_size/3) ; ++i){
+		for (; i < WIDTH*HEIGHT; ++i){
 			//Hay un nuevo maximo
 			if (colores[0] < imgdata[i]){
 				colores[0]=imgdata[i];
@@ -312,7 +312,7 @@ void MaxMin(string ImageFile, string OutputFile){
 				colores[1]=imgdata[i];
 			}
 		}
-		for (; i< ((matrix_size*2)/3); ++i){
+		for (; i < WIDTH*HEIGHT*2; ++i){
 			if (colores[2] < imgdata[i]){
 				colores[2]=imgdata[i];
 			}
@@ -320,7 +320,7 @@ void MaxMin(string ImageFile, string OutputFile){
 				colores[3]=imgdata[i];
 			}
 		}
-		for (; i<(matrix_size); ++i){
+		for (; i < WIDTH*HEIGHT*3; ++i){
 			if (colores[4] < imgdata[i]){
 				colores[4]=imgdata[i];
 			}

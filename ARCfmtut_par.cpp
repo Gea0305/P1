@@ -244,7 +244,8 @@ void aplicar_mascara(string ImageFile, string OutputFile, string MaskFile){
 			//int chunk=2;
 			int tid, nthreads;
 			//dont need to define the number of threads the program will define them based on the number of cores on the machine
-			#pragma omp parallel  shared(imgdata,mskdata,matrix_size,nthreads) private(tid){
+			#pragma omp parallel  shared(imgdata,mskdata,matrix_size,nthreads) private(tid)
+			{
 				tid = omp_get_thread_num();
 				if (tid == 0){
    					nthreads = omp_get_num_threads();

@@ -270,57 +270,50 @@ void aplicar_mascara(string ImageFile, string OutputFile, string MaskFile){
 }
 
 void rotacion(string ImageFile, string OutputFile, double gr){
-	ifstream InFile;
-	InFile.open(ImageFile, ios::in | ios::binary);
-	if (InFile.is_open()) {
-	 	ofstream pOutFile;
+	ifstream InImagen;
+	InImagen.open(ImageFile, ios::in | ios::binary);
+	if (InImagen.is_open()) {
+		ofstream pOutFile;
 		pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
-    	if(pOutFile.is_open()){
-		//Se escribe la cabecera 
-   		unsigned char cabecera[8];
-   		InFile.read((char*)& cabecera, 8);
-   		pOutFile.write( (char *)& cabecera, 8);	
-   		//Se vuelca la matriz en el vector
-		vector<unsigned char> imgdata(matrix_size); 
-			for (int i=0; i<(matrix_size); ++i){
-				InFile.read((char*)& imgdata[i], 1);
-			}
-			
-		InFile.close();
-		vector<unsigned char> fin(matrix_size);
-		double xc,yc,xi,yi;
-		int xf,yf;
-		//Calculamos el centro de la imagen
-		xc=WIDTH/2;
-		yc=HEIGHT/2;
-		int contador=0;
-		int offset=0;
-		for(int k=0; k<3; ++k){
-			for (int j=0; j<HEIGHT; j++){
-				for(int i=0; i<WIDTH; i++){
-					xi=i-xc;
-					yi=j-yc;
-					xf= ceil( cos((gr*M_PI)/180)*xi - sin((gr*M_PI)/180)*yi +xc);
-					yf= ceil( sin((gr*M_PI)/180)*xi + cos((gr*M_PI)/180)*yi +yc);
-					if(yf<HEIGHT && yf>=0 && xf<WIDTH && xf>=0){
-						fin[(yf*WIDTH + xf)+offset]= imgdata[contador];
-						
+		if(pOutFile.is_open()){
+		//Se lee y escribe la cabecera
+			unsigned char cabecera[8];
+			InImagen.read((char*)& cabecera[0], 8);
+			pOutFile.write((char *)& cabecera[0], 8);
+			vector<unsigned char> imgdata(matrix_size); //Vector para volcar la matriz recibida
+			InImagen.read((char*) &imgdata[0], matrix_size);
+			InImagen.close();
+			vector<unsigned char> fin(matrix_size);
+			double xc,yc,xi,yi;
+			int xf,yf;
+			//Calculamos el centro de la imagen
+			xc=WIDTH/2;
+			yc=HEIGHT/2;
+			int contador=0;
+			int offset=0;
+			for(int k=0; k<3; ++k){
+				for (int j=0; j<HEIGHT; j++){
+					for(int i=0; i<WIDTH; i++){
+						xi=i-xc;
+						yi=j-yc;
+						xf= ceil( cos((gr*M_PI)/180)*xi - sin((gr*M_PI)/180)*yi +xc);
+						yf= ceil( sin((gr*M_PI)/180)*xi + cos((gr*M_PI)/180)*yi +yc);
+						if(yf<HEIGHT && yf>=0 && xf<WIDTH && xf>=0){
+							fin[(yf*WIDTH + xf)+offset]= imgdata[contador];
+						}
+						++contador;
 					}
-					contador++;
 				}
+				offset+=HEIGHT*WIDTH;
 			}
-			offset+=HEIGHT*WIDTH;
-		}
-		for(int i=0; i<(matrix_size); ++i){
-			pOutFile.write((char*)& fin[i], 1);
-		}
-	   	pOutFile.close();
-	   	}else{
+			pOutFile.write((char*)& fin[0], matrix_size);
+			pOutFile.close();
+		}else{
 			cerr<<"Error al abrir "<<OutputFile<<endl;
-	   	}
+		}
 	}else{
 		cerr<<"Error al abrir "<<ImageFile<<endl;
-	} 
+	}
 }
 
 void MaxMin(string ImageFile, string OutputFile){
@@ -336,8 +329,7 @@ void MaxMin(string ImageFile, string OutputFile){
 			InFile.read((char*)& imgdata[i], 1);
 		}
 		int tid, nthreads;
-		int i;
-		#pragma omp parallel  shared(imgdata,HEIGHT,WIDTH, colores) private(i)
+		#pragma omp parallel  shared(imgdata,HEIGHT,WIDTH, colores)
 		{
 			tid = omp_get_thread_num();
 			if (tid == 0){
@@ -345,46 +337,52 @@ void MaxMin(string ImageFile, string OutputFile){
 			 	printf("Starting matrix multiple example with %d threads\n",nthreads);
 			}
 			#pragma omp for schedule (static)
-			for (i=0; i < (matrix_size/3) ; ++i){
+			for (int i=0; i < (matrix_size/3) ; ++i){
 				//Hay un nuevo maximo
+				#pragma omp critical (max_red)
 				if (colores[0] < imgdata[i]){
 					//cout<<"im thread "<<tid<<"new  MAX value of colores[0]: "<<imgdata[i]<<endl;
 					/*Añadimos una seccion critica para evitar condiciones de carrera en la variable compartida colores.
 					Ademas se da un nombre a cada seccion critica para que solo a afecte a las secciones con dicho nombre,
 					si no lo nombraramos, un thread se quedaria esperando por cualquier seccion critica*/
-					#pragma omp critical (max_red)
+					
 					colores[0]=imgdata[i];
 					}
-				//Hay un nuevo minio
+				//Hay un nuevo minio	
+				#pragma omp critical (min_rojo)
 				if (colores[1] > imgdata[i]){
 					//cout<<"im thread "<<tid<<"new  MIN value of colores[1]: "<<imgdata[i]<<endl;
-					#pragma omp critical (min_rojo)
+				
 					colores[1]=imgdata[i];
 				}
 			}
 			#pragma omp for schedule (static)
-			for (i=(matrix_size/3) ; i< ((matrix_size*2)/3); ++i){
+			for (int i=(matrix_size/3) ; i< ((matrix_size*2)/3); ++i){
+				#pragma omp critical (max_green)
 				if (colores[2] < imgdata[i]){
 					//cout<<"im thread "<<tid<<"new  MAX value of colores[2]: "<<imgdata[i]<<endl;
-					#pragma omp critical (max_green)
+					
 					colores[2]=imgdata[i];
 				}
+				#pragma omp critical (min_green)
 				if (colores[3] > imgdata[i]){
 					//cout<<"im thread "<<tid<<"new  MIN value of colores[3]: "<<imgdata[i]<<endl;
-					#pragma omp critical (min_green)
+					
 					colores[3]=imgdata[i];
 				}
 			}
 			#pragma omp for schedule (static)
-			for (i=((matrix_size*2)/3); i<(matrix_size); ++i){
+			for (int i=((matrix_size*2)/3); i<(matrix_size); ++i){
+				#pragma omp critical (max_blue)
 				if (colores[4] < imgdata[i]){
 					//cout<<"im thread "<<tid<<"new  MAX value of colores[4]: "<<imgdata[i]<<endl;
-					#pragma omp critical (max_blue)
+					
 					colores[4]=imgdata[i];
 				}
+				#pragma omp critical (min_blue)
 				if (colores[5] > imgdata[i]){
 					//cout<<"im thread "<<tid<<"new  MIN value of colores[5]: "<<imgdata[i]<<endl;
-					#pragma omp critical (min_blue)
+					
 					colores[5]=imgdata[i];
 				}
 			}

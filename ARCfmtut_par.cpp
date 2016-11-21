@@ -426,7 +426,7 @@ void aplicar_filtro(string ImageFile, string OutputFile, double r){
 		int i, j;
 		#pragma omp parallel shared(imgdata,HEIGHT,WIDTH, centro) private(i, j , p)
 		{
-			#pragma omp for schedule(static) collapse(2)
+			#pragma omp for schedule(guided) collapse(2)
 			for(j =0; j<HEIGHT; ++j){
 				for(i=0; i<WIDTH; ++i){
 					p.x= i-centro.x;

@@ -407,58 +407,38 @@ void aplicar_filtro(string ImageFile, string OutputFile, double r){
 	ifstream InImagen;
 	InImagen.open(ImageFile, ios::in | ios::binary);
 	if (InImagen.is_open()){
-		vector<unsigned char> imgdata(matrix_size+8); //Vector para volcar la matriz recibida
 		streampos fileSize= matrix_size+8;
+		vector<unsigned char> imgdata(fileSize); //Vector para volcar la matriz recibida
 		InImagen.read((char*) &imgdata[0], fileSize);
 		InImagen.close();
 		struct punto{
-		double x;
-		double y;
+			double x;
+			double y;
 		};
 		struct punto centro, p;
-		int k=8;
 		centro.x=WIDTH/2;
 		centro.y=HEIGHT/2;
-		//Para el color rojo
-		for(int j =0; j<HEIGHT; ++j){
-			for(int i=0; i<WIDTH; ++i){
-				p.x= i-centro.x;
-				p.y= j-centro.y;
-				//Si esta fuera del radio, lo cambio de color
-				if (p.x * p.x + p.y * p.y > r*r){
-					imgdata[k] = floor(imgdata[k] * 0.3);	
+		int i, j;
+		#pragma omp parallel shared(imgdata,HEIGHT,WIDTH, centro) private(i, j , p)
+		{
+			#pragma omp for schedule(static) collapse(2)
+			for(j =0; j<HEIGHT; ++j){
+				for(i=0; i<WIDTH; ++i){
+					p.x= i-centro.x;
+					p.y= j-centro.y;
+					//Si esta fuera del radio, lo cambio de color
+					if (p.x * p.x + p.y * p.y > r*r){
+						imgdata[i+j*WIDTH+8] = floor(imgdata[i+j*WIDTH+8]*0.3);	
+						imgdata[i+WIDTH*(j+HEIGHT)+8] = floor(imgdata[i+WIDTH*(j+HEIGHT)+8]*0.59);
+						imgdata[i+WIDTH*(j+HEIGHT*2)+8] = floor(imgdata[i+WIDTH*(j+HEIGHT*2)+8]*0.11);
+					}
 				}
-				++k;
-			}
-		}
-		//Para el color verde
-		for(int j =0; j<HEIGHT; ++j){
-			for(int i=0; i<WIDTH; ++i){
-				p.x= i-centro.x;
-				p.y= j-centro.y;
-				//Si esta fuera del radio, lo cambio de color
-				if (p.x * p.x + p.y * p.y > r*r){
-					imgdata[k] = floor(imgdata[k] * 0.59);
-				}
-				++k;
-			}
-		}
-		//Para el azul
-		for(int j =0; j<HEIGHT; ++j){
-			for(int i=0; i<WIDTH; ++i){
-				p.x= i-centro.x;
-				p.y= j-centro.y;
-				//Si esta fuera del radio, lo cambio de color
-				if (p.x * p.x + p.y * p.y > r*r){
-					imgdata[k] = floor(imgdata[k] * 0.11);
-				}
-				++k;
 			}
 		}
 		ofstream OutFile;
 		OutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
 		if(OutFile.is_open()) {
-			OutFile.write((char*)& imgdata[0], fileSize);
+			OutFile.write((char*)& imgdata[0], 1);
 			OutFile.close();
 		}
 		else{

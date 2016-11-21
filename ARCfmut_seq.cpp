@@ -263,9 +263,8 @@ void rotacion(string ImageFile, string OutputFile, double gr){
    		unsigned char cabecera[8];
    		InImagen.read((char*)& cabecera[0], 8);
    		pOutFile.write((char *)& cabecera[0], 8);
-   		streampos fileSize= matrix_size;
-		vector<unsigned char> imgdata(fileSize); //Vector para volcar la matriz recibida
-		InImagen.read((char*) &imgdata[0], fileSize);
+		vector<unsigned char> imgdata(matrix_size); //Vector para volcar la matriz recibida
+		InImagen.read((char*) &imgdata[0], matrix_size);
 		InImagen.close();
 		vector<unsigned char> fin(matrix_size);
 		double xc,yc,xi,yi;
@@ -286,12 +285,12 @@ void rotacion(string ImageFile, string OutputFile, double gr){
 						fin[(yf*WIDTH + xf)+offset]= imgdata[contador];
 						
 					}
-					contador++;
+					++contador;
 				}
 			}
 			offset+=HEIGHT*WIDTH;
 		}
-    	pOutFile.write((char*)& fin[0], fileSize);
+    	pOutFile.write((char*)& fin[0], matrix_size);
 	   	pOutFile.close();
 	   	}else{
 			cerr<<"Error al abrir "<<OutputFile<<endl;
@@ -361,9 +360,8 @@ void aplicar_filtro(string ImageFile, string OutputFile, double r){
 	InImagen.open(ImageFile, ios::in | ios::binary);
 	if (InImagen.is_open()){
 		vector<unsigned char> imgdata(matrix_size+8); //Vector para volcar la matriz recibida
-		for (int i=0; i<(matrix_size+8); ++i){
-			InImagen.read((char*)& imgdata[i], 1);
-		}
+		streampos fileSize= matrix_size+8;
+		InImagen.read((char*) &imgdata[0], fileSize);
 		InImagen.close();
 		struct punto{
 		double x;
@@ -412,9 +410,7 @@ void aplicar_filtro(string ImageFile, string OutputFile, double r){
 		ofstream OutFile;
 		OutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
 		if(OutFile.is_open()) {
-			for(int i=0; i<(matrix_size+8); ++i){
-				OutFile.write((char*)& imgdata[i], 1);
-			}
+			pOutFile.write((char*)& imgdata[0], fileSize);
 			OutFile.close();
 		}
 		else{

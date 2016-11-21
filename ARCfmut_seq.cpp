@@ -264,23 +264,22 @@ void aplicar_mascara(string ImageFile, string OutputFile, string MaskFile){
 }
 
 void rotacion(string ImageFile, string OutputFile, double gr){
-	ifstream InFile;
-	InFile.open(ImageFile, ios::in | ios::binary);
-	if (InFile.is_open()) {
+	ifstream InImagen;
+	InImagen.open(ImageFile, ios::in | ios::binary);
+	if (InImagen.is_open()) {
 	 	ofstream pOutFile;
 		pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
     	if(pOutFile.is_open()){
-		//Se escribe la cabecera 
+		//Se  lee y escribe la cabecera 
    		unsigned char cabecera[8];
-   		InFile.read((char*)& cabecera, 8);
-   		pOutFile.write( (char *)& cabecera, 8);	
-   		//Se vuelca la matriz en el vector
-		vector<unsigned char> imgdata(matrix_size); 
-			for (int i=0; i<(matrix_size); ++i){
-				InFile.read((char*)& imgdata[i], 1);
-			}
-			
-		InFile.close();
+   		InImagen.read((char*)& cabecera[0], 8);
+   		pOutFile.write((char *)& cabecera[0], 8);
+
+   		streampos fileSize= matrix_size;
+		vector<unsigned char> imgdata(fileSize); //Vector para volcar la matriz recibida
+		InImagen.read((char*) &imgdata[0], fileSize);
+		InImagen.close();
+		
 		vector<unsigned char> fin(matrix_size);
 		double xc,yc,xi,yi;
 		int xf,yf;
@@ -306,16 +305,16 @@ void rotacion(string ImageFile, string OutputFile, double gr){
 			offset+=HEIGHT*WIDTH;
 		}
       
-    		for(int i=0; i<(matrix_size); ++i){
-    			pOutFile.write((char*)& fin[i], 1);
-	   		}
+    		
+    			pOutFile.write((char*)& fin[0], fileSize);
+	   		
 	   		pOutFile.close();
 	   	}else{
 			cerr<<"Error al abrir "<<OutputFile<<endl;
 	   	}
 	}else{
 		cerr<<"Error al abrir "<<ImageFile<<endl;
-	} 
+	}  
 }
 
 void MaxMin(string ImageFile, string OutputFile){

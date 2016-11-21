@@ -304,14 +304,17 @@ void rotacion(string ImageFile, string OutputFile, double gr){
 			}
 			offset+=HEIGHT*WIDTH;
 		}
-      	pOutFile.write((char*)& fin[0], fileSize);
-	   	pOutFile.close();
+      
+    		
+    			pOutFile.write((char*)& fin[0], fileSize);
+	   		
+	   		pOutFile.close();
 	   	}else{
 			cerr<<"Error al abrir "<<OutputFile<<endl;
 	   	}
 	}else{
 		cerr<<"Error al abrir "<<ImageFile<<endl;
-	} 
+	}  
 }
 
 void MaxMin(string ImageFile, string OutputFile){
@@ -322,9 +325,7 @@ void MaxMin(string ImageFile, string OutputFile){
 		vector<unsigned char> imgdata(matrix_size); //Vector para volcar la matriz recibida
 		//No leemos los bytes que indican el tamaÃ±o de la matriz
 		InFile.seekg(8);
-		for (int i=0; i<matrix_size; ++i){
-			InFile.read((char*)& imgdata[i], 1);
-		}
+		InImagen.read((char*) &imgdata[0], matrix_size);
 		InFile.close();
 		int i =0;
 		for (; i < (matrix_size/3) ; ++i){

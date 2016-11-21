@@ -337,7 +337,7 @@ void MaxMin(string ImageFile, string OutputFile){
 			 	printf("Starting matrix multiple example with %d threads\n",nthreads);
 			}
 			#pragma omp for schedule (static)
-			for (int i=0; i < (matrix_size/3) ; ++i){
+			for (int i=0; i < WIDTH*HEIGHT ; ++i){
 				//Hay un nuevo maximo
 				#pragma omp critical (max_red)
 				if (colores[0] < imgdata[i]){
@@ -357,7 +357,7 @@ void MaxMin(string ImageFile, string OutputFile){
 				}
 			}
 			#pragma omp for schedule (static)
-			for (int i=(matrix_size/3) ; i< ((matrix_size*2)/3); ++i){
+			for (int i= WIDTH*HEIGHT; i < WIDTH*HEIGHT*2; ++i){
 				#pragma omp critical (max_green)
 				if (colores[2] < imgdata[i]){
 					//cout<<"im thread "<<tid<<"new  MAX value of colores[2]: "<<imgdata[i]<<endl;
@@ -372,7 +372,7 @@ void MaxMin(string ImageFile, string OutputFile){
 				}
 			}
 			#pragma omp for schedule (static)
-			for (int i=((matrix_size*2)/3); i<(matrix_size); ++i){
+			for (int i=WIDTH*HEIGHT*2; i < WIDTH*HEIGHT*3; ++i){
 				#pragma omp critical (max_blue)
 				if (colores[4] < imgdata[i]){
 					//cout<<"im thread "<<tid<<"new  MAX value of colores[4]: "<<imgdata[i]<<endl;

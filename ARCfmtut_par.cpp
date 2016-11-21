@@ -19,29 +19,6 @@ int HEIGHT;
 int WIDTH;
 int matrix_size; //TamaÃ±o de la matriz sin contar con los bytes que indican el tamaÃ±o
 
-/*void leer_datos(string fileName, unsigned char imagen[]){
-ifstream InFile;
-InFile.open(fileName, ios::in | ios::binary); // open fileName and read as binary.
-if (InFile.is_open()) {
-for(int i=0; i< matrix_size+8; i++){
-InFile.read( (char *)& imagen[i], 1);
-}
-}else{
-cerr <<"Error opening file";
-}
-}
-void escribir_datos(string OutputFile, unsigned char imagen[]){
-//Creamos el ofstream, para escribir en el fichero de salida
-ofstream pOutFile;
-pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
-if(!pOutFile) {
-cout << "Error al abrir el fichero "<<OutputFile<<" para escribir"<<endl;
-}
-for(int i=0; i<matrix_size+8; i++){
-pOutFile.write( (char *) &imagen[i], 1);
-}
-}*/
-
 //argc= numero de argumentos especificados por linea de comandos
 //argv[i] contiene el contenido del argumento i
 int main(int argc, char ** argv){
@@ -177,7 +154,7 @@ void leer_dimensiones(string fileName){
 	ifstream InFile;
 	InFile.open(fileName, ios::in | ios::binary); // open fileName and read as binary.
     if (InFile.is_open()) {
-	    //Donde almacenamos los datos tienen que ser unsigned char, ya que van desde 0 a 255    
+		//Donde almacenamos los datos tienen que ser unsigned char, ya que van desde 0 a 255    
 		unsigned char heightData[4]; 
 		unsigned char widthData[4]; 
 		InFile.seekg(0, ios::beg); //pos filter at beginning of image file. 
@@ -185,7 +162,7 @@ void leer_dimensiones(string fileName){
 		InFile.read( (char *)& heightData, 4 ); //Lees la altura
 		//Lee 2000 0000, como esta en LEndian seria 0000 0020, que equivale a 32.En las posiciones el 0 seria el 3, el 1 el 2 y el 3 el 0
 		//Lo cambio a BIGENDIAN
-   	    HEIGHT += (int)heightData[0] | ((int)heightData[1]<<8) | ((int)heightData[2]<<16) | ((int)heightData[3]<<24);
+		HEIGHT += (int)heightData[0] | ((int)heightData[1]<<8) | ((int)heightData[2]<<16) | ((int)heightData[3]<<24);
 		InFile.read( (char *)& widthData, 4); 
 		WIDTH += (int)widthData[0] | ((int)widthData[1]<<8) | ((int)widthData[2]<<16) | ((int)widthData[3]<<24);
 		matrix_size=  (HEIGHT*WIDTH)*3;
@@ -204,18 +181,16 @@ void histograma(string ImageFile, string OutputFile, int t){
 	if (InFile.is_open()){
 		int i, j;
 		bool found;
-		double grey;
+		double grey, tram=255.0/t;
 		vector<int> histogram(t, 0); //Vector con los tramos inicializado a 0
-		vector<unsigned char> imgdata(matrix_size); //Vector para volcar la matriz recibida
+		vector<unsigned char> imgdata(matrix_size); //Vector para volcar la matriz reciba
 		InFile.seekg(8);
-		for (i=0; i<matrix_size; ++i){
-			InFile.read((char*)& imgdata[i], 1);
-		}
+		InFile.read((char*) &imgdata[0], matrix_size);
 		InFile.close();
 		for (i=0; i<(HEIGHT*WIDTH); ++i){ //Bucle para calcular el gris resultante de cada pixel
 			grey=(imgdata[i]*0.3+imgdata[i+HEIGHT*WIDTH]*0.59+imgdata[i+HEIGHT*WIDTH*2]*0.11);
 			for (j=0, found=false; j<t && !found; ++j){ //Bucle para encontrar el tramo adecuado en el histograma
-				if (grey<((j+1)*(255.0/t))){ //Comprobamos desde el primer tramo hasta que entre en uno
+				if (grey<((j+1)*tram)){ //Comprobamos desde el primer tramo hasta que entre en uno
 					histogram[j]+=1;
 					found=true; //Cuando encontramos su tramo no volvemos a ejecutar el for
 				}
@@ -259,13 +234,12 @@ void aplicar_mascara(string ImageFile, string OutputFile, string MaskFile){
 			//int chunk=2;
 			int tid, nthreads;
 			//dont need to define the number of threads the program will define them based on the number of cores on the machine
-			#pragma omp parallel  shared(imgdata,mskdata,matrix_size,nthreads) private(tid)
-			{
+			#pragma omp parallel  shared(imgdata,mskdata,matrix_size,nthreads) private(tid){
 				tid = omp_get_thread_num();
-  					if (tid == 0){
-   						 nthreads = omp_get_num_threads();
-    					 printf("Starting matrix multiple example with %d threads\n",nthreads);
-					}
+				if (tid == 0){
+   					nthreads = omp_get_num_threads();
+    				printf("Starting matrix multiple example with %d threads\n",nthreads);
+				}
 				#pragma omp for schedule (static)
 				for(int i=8; i<(matrix_size+8); ++i){
 					imgdata[i]*=mskdata[i];
@@ -291,7 +265,7 @@ void aplicar_mascara(string ImageFile, string OutputFile, string MaskFile){
 }
 
 void rotacion(string ImageFile, string OutputFile, double gr){
-		ifstream InFile;
+	ifstream InFile;
 	InFile.open(ImageFile, ios::in | ios::binary);
 	if (InFile.is_open()) {
 	 	ofstream pOutFile;
@@ -332,11 +306,10 @@ void rotacion(string ImageFile, string OutputFile, double gr){
 			}
 			offset+=HEIGHT*WIDTH;
 		}
-      
-    		for(int i=0; i<(matrix_size); ++i){
-    			pOutFile.write((char*)& fin[i], 1);
-	   		}
-	   		pOutFile.close();
+		for(int i=0; i<(matrix_size); ++i){
+			pOutFile.write((char*)& fin[i], 1);
+		}
+	   	pOutFile.close();
 	   	}else{
 			cerr<<"Error al abrir "<<OutputFile<<endl;
 	   	}
@@ -384,7 +357,6 @@ void MaxMin(string ImageFile, string OutputFile){
 					colores[1]=imgdata[i];
 				}
 			}
-
 			#pragma omp for schedule (static)
 			for (i=(matrix_size/3) ; i< ((matrix_size*2)/3); ++i){
 				if (colores[2] < imgdata[i]){
@@ -435,9 +407,8 @@ void aplicar_filtro(string ImageFile, string OutputFile, double r){
 	InImagen.open(ImageFile, ios::in | ios::binary);
 	if (InImagen.is_open()){
 		vector<unsigned char> imgdata(matrix_size+8); //Vector para volcar la matriz recibida
-		for (int i=0; i<(matrix_size+8); ++i){
-			InImagen.read((char*)& imgdata[i], 1);
-		}
+		streampos fileSize= matrix_size+8;
+		InImagen.read((char*) &imgdata[0], fileSize);
 		InImagen.close();
 		struct punto{
 		double x;
@@ -448,47 +419,45 @@ void aplicar_filtro(string ImageFile, string OutputFile, double r){
 		centro.x=WIDTH/2;
 		centro.y=HEIGHT/2;
 		//Para el color rojo
-		for(int j =0; j<HEIGHT; j++){
-			for(int i=0; i<WIDTH; i++){
+		for(int j =0; j<HEIGHT; ++j){
+			for(int i=0; i<WIDTH; ++i){
 				p.x= i-centro.x;
 				p.y= j-centro.y;
 				//Si esta fuera del radio, lo cambio de color
 				if (p.x * p.x + p.y * p.y > r*r){
 					imgdata[k] = floor(imgdata[k] * 0.3);	
 				}
-				k++;
+				++k;
 			}
 		}
 		//Para el color verde
-		for(int j =0; j<HEIGHT; j++){
-			for(int i=0; i<WIDTH; i++){
+		for(int j =0; j<HEIGHT; ++j){
+			for(int i=0; i<WIDTH; ++i){
 				p.x= i-centro.x;
 				p.y= j-centro.y;
 				//Si esta fuera del radio, lo cambio de color
 				if (p.x * p.x + p.y * p.y > r*r){
 					imgdata[k] = floor(imgdata[k] * 0.59);
 				}
-				k++;
+				++k;
 			}
 		}
 		//Para el azul
-		for(int j =0; j<HEIGHT; j++){
-			for(int i=0; i<WIDTH; i++){
+		for(int j =0; j<HEIGHT; ++j){
+			for(int i=0; i<WIDTH; ++i){
 				p.x= i-centro.x;
 				p.y= j-centro.y;
 				//Si esta fuera del radio, lo cambio de color
 				if (p.x * p.x + p.y * p.y > r*r){
 					imgdata[k] = floor(imgdata[k] * 0.11);
 				}
-				k++;
+				++k;
 			}
 		}
 		ofstream OutFile;
 		OutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
 		if(OutFile.is_open()) {
-			for(int i=0; i<(matrix_size+8); ++i){
-				OutFile.write((char*)& imgdata[i], 1);
-			}
+			OutFile.write((char*)& imgdata[0], fileSize);
 			OutFile.close();
 		}
 		else{

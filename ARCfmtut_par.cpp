@@ -345,7 +345,7 @@ void MaxMin(string ImageFile, string OutputFile){
 					si no lo nombraramos, un thread se quedaria esperando por cualquier seccion critica*/
 					
 					colores[0]=imgdata[i];
-					}
+				}
 				//Hay un nuevo minio	
 				#pragma omp critical (min_rojo)
 				if (colores[1] > imgdata[i]){
@@ -386,9 +386,9 @@ void MaxMin(string ImageFile, string OutputFile){
 			}
 		}
 		ofstream pOutFile;
-    	pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
-    	if(!pOutFile) { 
-    		cerr << "No se puede abrir el fichero "<<OutputFile<<"Para escribir"<<endl; 
+    		pOutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
+    		if(!pOutFile) { 
+    			cerr << "No se puede abrir el fichero "<<OutputFile<<"Para escribir"<<endl; 
    		} 
 		for (int i=0; i<6; i++){
    			pOutFile<<colores[i]; 

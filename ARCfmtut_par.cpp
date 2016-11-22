@@ -259,57 +259,33 @@ void rotacion(string ImageFile, string OutputFile, double gr){
 			unsigned char cabecera[8];
 			InImagen.read((char*)& cabecera[0], 8);
 			pOutFile.write((char *)& cabecera[0], 8);
-			vector<unsigned char> imgdata(matrix_size); //Vector para volcar la matriz recibida
+			vector<unsigned char> imgdata(matrix_size);
 			InImagen.read((char*) &imgdata[0], matrix_size);
 			InImagen.close();
 			vector<unsigned char> fin(matrix_size);
 			double xc,yc,xi,yi;
+			double coseno= cos((gr*M_PI)/180);
 			int xf,yf;
-			//Calculamos el centro de la imagen
 			xc=WIDTH/2;
 			yc=HEIGHT/2;
-		
-				
-				for (int j=0; j<HEIGHT; j++){ //Color rojo
-					for(int i=0; i<WIDTH; i++){
+			#pragma omp parallel  shared(imgdata,HEIGHT,WIDTH,xc,yc,coseno, fin) private(xi,yi,xf,yf) 
+			{
+			#pragma omp for schedule(guided)
+				for (int j=0; j<HEIGHT; ++j){
+					for(int i=0; i<WIDTH; ++i){
 						xi=i-xc;
 						yi=j-yc;
-						xf= ceil( cos((gr*M_PI)/180)*xi - sin((gr*M_PI)/180)*yi +xc);
-						yf= ceil( sin((gr*M_PI)/180)*xi + cos((gr*M_PI)/180)*yi +yc);
+						xf= ceil( coseno*xi - sin((gr*M_PI)/180)*yi +xc);
+						yf= ceil( sin((gr*M_PI)/180)*xi + coseno*yi +yc);
 						if(yf<HEIGHT && yf>=0 && xf<WIDTH && xf>=0){
 							fin[(yf*WIDTH + xf)]= imgdata[i+j*WIDTH];
-						}
-						
-					}
-				}
-				
-					for (int j=0; j<HEIGHT; j++){ //Para el color verde
-					for(int i=0; i<WIDTH; i++){
-						xi=i-xc;
-						yi=j-yc;
-						xf= ceil( cos((gr*M_PI)/180)*xi - sin((gr*M_PI)/180)*yi +xc);
-						yf= ceil( sin((gr*M_PI)/180)*xi + cos((gr*M_PI)/180)*yi +yc);
-						if(yf<HEIGHT && yf>=0 && xf<WIDTH && xf>=0){
 							fin[(yf*WIDTH + xf)+HEIGHT*WIDTH]= imgdata[i+WIDTH*(j+HEIGHT)];
-						}
-						
-					}
-				}
-				
-					for (int j=0; j<HEIGHT; j++){ //Par el color azul
-					for(int i=0; i<WIDTH; i++){
-						xi=i-xc;
-						yi=j-yc;
-						xf= ceil( cos((gr*M_PI)/180)*xi - sin((gr*M_PI)/180)*yi +xc);
-						yf= ceil( sin((gr*M_PI)/180)*xi + cos((gr*M_PI)/180)*yi +yc);
-						if(yf<HEIGHT && yf>=0 && xf<WIDTH && xf>=0){
 							fin[(yf*WIDTH + xf)+ HEIGHT*WIDTH*2 ]= imgdata[i+WIDTH*(j+HEIGHT*2)];
 						}
 						
 					}
-				}
-				
-			
+				}				
+			} 
 			pOutFile.write((char*)& fin[0], matrix_size);
 			pOutFile.close();
 		}else{

@@ -265,6 +265,7 @@ void rotacion(string ImageFile, string OutputFile, double gr){
 			vector<unsigned char> fin(matrix_size);
 			double xc,yc,xi,yi;
 			double coseno= cos((gr*M_PI)/180);
+			double seno= sin((gr*M_PI)/180);
 			int xf,yf;
 			xc=WIDTH/2;
 			yc=HEIGHT/2;
@@ -275,12 +276,12 @@ void rotacion(string ImageFile, string OutputFile, double gr){
 					for(int i=0; i<WIDTH; ++i){
 						xi=i-xc;
 						yi=j-yc;
-						xf= ceil( coseno*xi - sin((gr*M_PI)/180)*yi +xc);
-						yf= ceil( sin((gr*M_PI)/180)*xi + coseno*yi +yc);
+						xf= ceil(coseno*xi - seno*yi +xc);
+						yf= ceil(seno*xi + coseno*yi +yc);
 						if(yf<HEIGHT && yf>=0 && xf<WIDTH && xf>=0){
-							fin[(yf*WIDTH + xf)]= imgdata[i+j*WIDTH];
-							fin[(yf*WIDTH + xf)+HEIGHT*WIDTH]= imgdata[i+WIDTH*(j+HEIGHT)];
-							fin[(yf*WIDTH + xf)+ HEIGHT*WIDTH*2 ]= imgdata[i+WIDTH*(j+HEIGHT*2)];
+							fin[yf*WIDTH + xf]= imgdata[i+j*WIDTH];
+							fin[xf+WIDTH*(yf+HEIGHT)]= imgdata[i+WIDTH*(j+HEIGHT)];
+							fin[xf+WIDTH*(yf+HEIGHT*2)]= imgdata[i+WIDTH*(j+HEIGHT*2)];
 						}
 						
 					}
@@ -293,7 +294,7 @@ void rotacion(string ImageFile, string OutputFile, double gr){
 		}
 	}else{
 		cerr<<"Error al abrir "<<ImageFile<<endl;
-	}
+}
 }
 
 void MaxMin(string ImageFile, string OutputFile){

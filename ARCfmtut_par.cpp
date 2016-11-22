@@ -321,7 +321,7 @@ void rotacion(string ImageFile, string OutputFile, double gr){
 }
 
 void MaxMin(string ImageFile, string OutputFile){
-	ifstream InFile;
+		ifstream InFile;
 	InFile.open(ImageFile, ios::in | ios::binary);
  	if (InFile.is_open()) { 
 		int colores[]= {0,255,0,255,0,255} ;
@@ -331,37 +331,31 @@ void MaxMin(string ImageFile, string OutputFile){
 		InFile.close();
 		#pragma omp parallel  shared(imgdata,HEIGHT,WIDTH, colores)
 		{
-			#pragma omp for schedule (static)
+			#pragma omp for schedule (guided)
 			for (int i=0; i < WIDTH*HEIGHT ; ++i){ //Para el color rojo
-				#pragma omp critical (max_red)
 				if (colores[0] < imgdata[i]){ //Hay un nuevo maximo rojo
+					#pragma omp critical (max_red)
 					colores[0]=imgdata[i];
 				}
-				#pragma omp critical (min_rojo)
 				if (colores[1] > imgdata[i]){ //Hay un nuevo minimo rojo	
+					#pragma omp critical (min_rojo)
 					colores[1]=imgdata[i];
 				}
-			}
-			#pragma omp for schedule (static)
-			for (int i= WIDTH*HEIGHT; i < WIDTH*HEIGHT*2; ++i){ //Para el color verde
-				#pragma omp critical (max_green)
-				if (colores[2] < imgdata[i]){ //Hay un nuevo maximo verde
-					colores[2]=imgdata[i];
+				if (colores[2] < imgdata[i+HEIGHT*WIDTH]){ //Hay un nuevo maximo verde
+					#pragma omp critical (max_green)
+					colores[2]=imgdata[i+HEIGHT*WIDTH];
 				}
-				#pragma omp critical (min_green)
-				if (colores[3] > imgdata[i]){ //Hay un nuevo minimo verde
-					colores[3]=imgdata[i];
+				if (colores[3] > imgdata[i+HEIGHT*WIDTH]){ //Hay un nuevo minimo verde
+					#pragma omp critical (min_green)
+					colores[3]=imgdata[i+HEIGHT*WIDTH];
 				}
-			}
-			#pragma omp for schedule (static)
-			for (int i=WIDTH*HEIGHT*2; i < WIDTH*HEIGHT*3; ++i){ //Para el color azul
-				#pragma omp critical (max_blue)
-				if (colores[4] < imgdata[i]){ //Hay un nuevo maximo azul
-					colores[4]=imgdata[i];
+				if (colores[4] < imgdata[i+HEIGHT*WIDTH*2]){ //Hay un nuevo maximo azul
+					#pragma omp critical (max_blue)
+					colores[4]=imgdata[i+HEIGHT*WIDTH*2];
 				}
-				#pragma omp critical (min_blue)
-				if (colores[5] > imgdata[i]){ //Hay un nuevo minimo azul
-					colores[5]=imgdata[i];
+				if (colores[5] > imgdata[i+HEIGHT*WIDTH*2]){ //Hay un nuevo minimo azul
+					#pragma omp critical (min_blue)
+					colores[5]=imgdata[i+HEIGHT*WIDTH*2];
 				}
 			}
 		}

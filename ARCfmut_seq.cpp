@@ -364,7 +364,7 @@ void aplicar_filtro(string ImageFile, string OutputFile, double r){
 		ofstream OutFile;
 		OutFile.open(OutputFile, ios::out | ios::trunc | ios::binary);
 		if(OutFile.is_open()) {
-			OutFile.write((char*)& imgdata[0], 1); //Se escribe la matriz resultante en el fichero de salida
+			OutFile.write((char*)& imgdata[0], fileSize); //Se escribe la matriz resultante en el fichero de salida
 			OutFile.close();
 		}
 		else{

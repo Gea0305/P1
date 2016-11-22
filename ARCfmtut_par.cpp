@@ -249,7 +249,7 @@ void aplicar_mascara(string ImageFile, string OutputFile, string MaskFile){
 }
 
 void rotacion(string ImageFile, string OutputFile, double gr){
-	ifstream InImagen;
+		ifstream InImagen;
 	InImagen.open(ImageFile, ios::in | ios::binary);
 	if (InImagen.is_open()) {
 		ofstream pOutFile;
@@ -268,23 +268,48 @@ void rotacion(string ImageFile, string OutputFile, double gr){
 			//Calculamos el centro de la imagen
 			xc=WIDTH/2;
 			yc=HEIGHT/2;
-			int contador=0;
-			int offset=0;
-			for(int k=0; k<3; ++k){
-				for (int j=0; j<HEIGHT; j++){
+		
+				
+				for (int j=0; j<HEIGHT; j++){ //Color rojo
 					for(int i=0; i<WIDTH; i++){
 						xi=i-xc;
 						yi=j-yc;
 						xf= ceil( cos((gr*M_PI)/180)*xi - sin((gr*M_PI)/180)*yi +xc);
 						yf= ceil( sin((gr*M_PI)/180)*xi + cos((gr*M_PI)/180)*yi +yc);
 						if(yf<HEIGHT && yf>=0 && xf<WIDTH && xf>=0){
-							fin[(yf*WIDTH + xf)+offset]= imgdata[contador];
+							fin[(yf*WIDTH + xf)]= imgdata[i+j*WIDTH];
 						}
-						++contador;
+						
 					}
 				}
-				offset+=HEIGHT*WIDTH;
-			}
+				
+					for (int j=0; j<HEIGHT; j++){ //Para el color verde
+					for(int i=0; i<WIDTH; i++){
+						xi=i-xc;
+						yi=j-yc;
+						xf= ceil( cos((gr*M_PI)/180)*xi - sin((gr*M_PI)/180)*yi +xc);
+						yf= ceil( sin((gr*M_PI)/180)*xi + cos((gr*M_PI)/180)*yi +yc);
+						if(yf<HEIGHT && yf>=0 && xf<WIDTH && xf>=0){
+							fin[(yf*WIDTH + xf)+HEIGHT*WIDTH]= imgdata[i+WIDTH*(j+HEIGHT)];
+						}
+						
+					}
+				}
+				
+					for (int j=0; j<HEIGHT; j++){ //Par el color azul
+					for(int i=0; i<WIDTH; i++){
+						xi=i-xc;
+						yi=j-yc;
+						xf= ceil( cos((gr*M_PI)/180)*xi - sin((gr*M_PI)/180)*yi +xc);
+						yf= ceil( sin((gr*M_PI)/180)*xi + cos((gr*M_PI)/180)*yi +yc);
+						if(yf<HEIGHT && yf>=0 && xf<WIDTH && xf>=0){
+							fin[(yf*WIDTH + xf)+ HEIGHT*WIDTH*2 ]= imgdata[i+WIDTH*(j+HEIGHT*2)];
+						}
+						
+					}
+				}
+				
+			
 			pOutFile.write((char*)& fin[0], matrix_size);
 			pOutFile.close();
 		}else{
